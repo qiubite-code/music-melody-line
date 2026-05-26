@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>音乐教学实时音频旋律线条可视化系统｜钢琴音高校准修复版｜作者：丘比特</title>
+  <title>音乐教学实时音频旋律线条可视化系统｜雅致界面美化版｜作者：丘比特</title>
   <meta name="author" content="丘比特" />
   <style>
     :root {
@@ -1380,7 +1380,7 @@
     }
 
   
-    /* 钢琴音高校准修复版：旋律图示略缩小，保留观察区突出但减少垂直占用 */
+    /* 雅致界面美化版：旋律图示略缩小，保留观察区突出但减少垂直占用 */
     .redesigned-app .canvas-wrap,
     .canvas-wrap {
       height: min(68vh, 600px) !important;
@@ -1543,6 +1543,460 @@
       }
     }
 
+  
+
+    /* ==== 雅致界面美化版 ==== */
+    :root {
+      --bg: #07111f;
+      --panel: rgba(8, 20, 38, .86);
+      --panel2: rgba(14, 30, 52, .92);
+      --line: rgba(148, 163, 184, .16);
+      --text: #edf4ff;
+      --muted: #9fb4cb;
+      --accent: #63c7d8;
+      --accent-2: #7aa2f7;
+      --soft-gold: #d7b56d;
+      --good: #57d39b;
+      --warn: #f4be6a;
+      --danger: #ff7a88;
+      --card-radius: 24px;
+    }
+    body {
+      background:
+        radial-gradient(circle at 12% 8%, rgba(99, 199, 216, .15), transparent 28%),
+        radial-gradient(circle at 86% 10%, rgba(122, 162, 247, .14), transparent 24%),
+        radial-gradient(circle at 50% 100%, rgba(215, 181, 109, .08), transparent 26%),
+        linear-gradient(135deg, #030a14 0%, #07111f 45%, #0a1930 100%);
+      color: var(--text);
+    }
+    .app.redesigned-app {
+      width: min(1460px, calc(100vw - 26px));
+      padding-top: 24px;
+      padding-bottom: 38px;
+    }
+    .hero, .panel, .stage, .metric, .notation-panel, .audio-box, .action-group, .settings-column {
+      backdrop-filter: blur(16px);
+    }
+    .hero, .panel, .stage, .notation-panel {
+      border: 1px solid rgba(170, 197, 223, .14);
+      box-shadow: 0 18px 50px rgba(2, 10, 22, .42), inset 0 1px 0 rgba(255, 255, 255, .03);
+    }
+    .panel,
+    .hero-card,
+    .help-card,
+    .action-panel,
+    .config-panel,
+    .notation-panel,
+    .stage {
+      background:
+        linear-gradient(180deg, rgba(9, 23, 42, .92) 0%, rgba(8, 18, 35, .88) 100%);
+    }
+    .hero-card {
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -10% -45% auto;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(99, 199, 216, .18), transparent 68%);
+      pointer-events: none;
+    }
+    .hero-card h1 {
+      font-size: clamp(30px, 4.2vw, 48px);
+      letter-spacing: .01em;
+      text-shadow: 0 6px 30px rgba(80, 161, 200, .18);
+    }
+    .eyebrow {
+      color: #8fd9e5;
+      letter-spacing: .16em;
+    }
+    .author-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(122, 162, 247, .18), rgba(99, 199, 216, .18));
+      border: 1px solid rgba(143, 217, 229, .25);
+      color: #eaf7ff;
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    .subtitle {
+      color: #d3e1f1;
+      opacity: .95;
+    }
+    .feature-chip {
+      background: linear-gradient(180deg, rgba(19, 36, 62, .88), rgba(10, 24, 43, .92));
+      border: 1px solid rgba(143, 217, 229, .16);
+      color: #e9f5ff;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .help-card {
+      background: linear-gradient(180deg, rgba(11, 24, 44, .92), rgba(10, 19, 36, .9));
+    }
+    .mini-tip {
+      background: linear-gradient(180deg, rgba(99, 199, 216, .10), rgba(122, 162, 247, .08));
+      border-color: rgba(143, 217, 229, .18);
+      color: #d4e3f4;
+    }
+    button,
+    .file-label,
+    .manual-btn,
+    .summary-badge,
+    .recordingDownload,
+    a#recordingDownload {
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease, opacity .18s ease;
+    }
+    button:hover,
+    .file-label:hover,
+    .manual-btn:hover,
+    a#recordingDownload:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(0, 0, 0, .18);
+    }
+    button,
+    .file-label,
+    .manual-btn {
+      border-radius: 16px !important;
+      border: 1px solid rgba(162, 191, 217, .16) !important;
+      font-weight: 700;
+      letter-spacing: .01em;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    button.primary,
+    .stage-record-actions .primary {
+      background: linear-gradient(135deg, #d95a6f, #e88467) !important;
+      color: #fffaf8 !important;
+    }
+    button.pause-btn {
+      background: linear-gradient(135deg, #385a88, #486d98) !important;
+      color: #f1f7ff !important;
+    }
+    button.stop {
+      background: linear-gradient(135deg, #6a7891, #7586a1) !important;
+      color: #f6fbff !important;
+    }
+    button.success,
+    button.notation-btn,
+    button.metro-start,
+    .file-label.upload-btn {
+      background: linear-gradient(135deg, rgba(75, 152, 170, .95), rgba(86, 178, 166, .95)) !important;
+      color: #f9ffff !important;
+    }
+    button.ghost,
+    button.metro-stop,
+    .manual-btn {
+      background: linear-gradient(135deg, rgba(27, 49, 78, .95), rgba(19, 38, 61, .96)) !important;
+      color: #e7f0fb !important;
+    }
+    button:disabled {
+      opacity: .48;
+      box-shadow: none;
+      transform: none;
+    }
+    .action-group,
+    .audio-box,
+    .settings-column,
+    .metric,
+    .stage-record-toolbar,
+    .stage-playback-card,
+    .count-in-card {
+      background: linear-gradient(180deg, rgba(12, 26, 45, .84), rgba(8, 19, 35, .90));
+      border: 1px solid rgba(162, 191, 217, .12);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
+    }
+    .section-title-row h2,
+    .visual-head h2,
+    .summary-copy h2,
+    .notation-head h2,
+    .help-card-top h2 {
+      color: #f4f9ff;
+    }
+    .section-subtitle,
+    .group-label,
+    .audio-label,
+    .summary-copy p:last-child,
+    .quick-steps span,
+    .mini-tip,
+    .stage-record-copy span,
+    .stage-playback-meta,
+    .param-help,
+    .manual-header p,
+    .footer-note {
+      color: #9fb4cb !important;
+    }
+    .status {
+      background: linear-gradient(180deg, rgba(14, 33, 59, .86), rgba(10, 24, 43, .92));
+      border: 1px solid rgba(143, 217, 229, .14);
+      color: #e6f4ff;
+    }
+    .pill {
+      background: linear-gradient(135deg, rgba(143, 217, 229, .22), rgba(122, 162, 247, .18));
+      color: #ddf7ff;
+      border: 1px solid rgba(143, 217, 229, .2);
+    }
+    .metro-indicator,
+    .recording-state,
+    #stageAudioState,
+    .summary-badge {
+      background: rgba(20, 41, 67, .88) !important;
+      border: 1px solid rgba(162, 191, 217, .14) !important;
+      color: #e8f4ff !important;
+    }
+    .metric {
+      position: relative;
+      overflow: hidden;
+      border-radius: 0 !important;
+      border-right: 1px solid rgba(162, 191, 217, .12);
+      border-left: none;
+      border-top: none;
+      border-bottom: none;
+      background: linear-gradient(180deg, rgba(9, 23, 42, .95), rgba(7, 18, 34, .94));
+      min-height: 112px;
+    }
+    .metric::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 3px;
+      background: linear-gradient(180deg, rgba(99, 199, 216, .95), rgba(122, 162, 247, .75));
+      opacity: .9;
+    }
+    .metric span {
+      color: #b4c8dc !important;
+      font-weight: 600;
+      letter-spacing: .02em;
+    }
+    .metric strong {
+      color: #f7fbff !important;
+      text-shadow: 0 4px 24px rgba(122, 162, 247, .15);
+    }
+    .stage {
+      border-radius: 28px;
+      overflow: hidden;
+      border: 1px solid rgba(143, 217, 229, .14);
+      box-shadow: 0 24px 60px rgba(1, 8, 18, .42);
+    }
+    .stage-top {
+      background: linear-gradient(180deg, rgba(7, 18, 34, .98), rgba(8, 20, 36, .95));
+    }
+    .canvas-wrap {
+      background:
+        linear-gradient(180deg, rgba(4, 14, 29, .65), rgba(4, 13, 25, .86)),
+        linear-gradient(90deg, rgba(99, 199, 216, .04) 0, rgba(99, 199, 216, 0) 22%),
+        linear-gradient(180deg, rgba(255,255,255,.015), rgba(255,255,255,0));
+      border-top: 1px solid rgba(162, 191, 217, .10);
+      min-height: 500px;
+    }
+    .note-name-switch {
+      top: 18px !important;
+      right: 18px !important;
+      background: rgba(8, 20, 38, .76) !important;
+      border: 1px solid rgba(162, 191, 217, .14) !important;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .26);
+      backdrop-filter: blur(12px);
+    }
+    .switch-track {
+      background: linear-gradient(135deg, rgba(21, 41, 67, .96), rgba(16, 34, 56, .96)) !important;
+      border-color: rgba(162, 191, 217, .12) !important;
+    }
+    .switch-text::before {
+      content: "音名" !important;
+      color: #e6f4ff !important;
+      font-weight: 700;
+    }
+    .note-name-switch input:checked ~ .switch-text::before {
+      content: "隐藏音名" !important;
+      color: #a8bdd1 !important;
+    }
+    .stage-playback-card strong,
+    .stage-record-copy strong,
+    .settings-column h3,
+    .notation-head h2 { color: #f1f8ff; }
+    .manual-overlay {
+      background: rgba(1, 7, 14, .72) !important;
+      backdrop-filter: blur(10px);
+    }
+    .manual-dialog {
+      background: linear-gradient(180deg, #0b1b31, #0a1628) !important;
+      border: 1px solid rgba(162, 191, 217, .14) !important;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, .38);
+    }
+    .manual-header,
+    .manual-body table th {
+      background: rgba(14, 30, 52, .94) !important;
+    }
+    .manual-actions a,
+    .manual-actions button {
+      background: linear-gradient(135deg, rgba(21, 41, 67, .96), rgba(16, 34, 56, .96)) !important;
+      border: 1px solid rgba(162, 191, 217, .14) !important;
+      color: #e6f4ff !important;
+    }
+    input[type="range"] {
+      accent-color: #63c7d8;
+    }
+    select, input[type="number"] {
+      background: rgba(10, 24, 43, .92) !important;
+      color: #eef6ff !important;
+      border: 1px solid rgba(162, 191, 217, .14) !important;
+    }
+    .audio-home audio,
+    .stage-audio-mount audio {
+      filter: saturate(.96) contrast(1.02);
+    }
+    .notation-legend span,
+    .feature-chip,
+    .summary-badge,
+    .mini-field span,
+    .recording-tools a {
+      font-weight: 600;
+    }
+    .recording-tools a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(20, 41, 67, .88);
+      border: 1px solid rgba(162, 191, 217, .14);
+      color: #eaf4ff;
+      text-decoration: none;
+    }
+    .settings-column {
+      border-top: none !important;
+    }
+    .config-details[open] > summary {
+      border-bottom: 1px solid rgba(162, 191, 217, .08);
+    }
+    .notation-panel {
+      margin-top: 20px;
+    }
+    .jianpu-output, .notation-scroller {
+      background: linear-gradient(180deg, rgba(8, 20, 38, .75), rgba(8, 18, 35, .85));
+      border: 1px solid rgba(162, 191, 217, .10);
+    }
+    @media (max-width: 900px) {
+      .metric { border-right: none; border-bottom: 1px solid rgba(162, 191, 217, .10); }
+      .metric::before { width: 100%; height: 2px; inset: 0 0 auto 0; }
+    }
+
+  
+
+    /* ==== 操作手册高对比度阅读修复版 ==== */
+    .manual-overlay {
+      background: rgba(2, 8, 18, .72) !important;
+      backdrop-filter: blur(10px) !important;
+    }
+    .manual-dialog {
+      background: #f8fafc !important;
+      color: #0f172a !important;
+      border: 1px solid #dbe7f2 !important;
+      box-shadow: 0 28px 90px rgba(0, 0, 0, .42) !important;
+    }
+    .manual-header {
+      background: linear-gradient(135deg, #0f2a43, #155e75) !important;
+      color: #ffffff !important;
+      border-bottom: 1px solid rgba(255, 255, 255, .12) !important;
+    }
+    .manual-header h2,
+    .manual-header p {
+      color: #ffffff !important;
+      opacity: 1 !important;
+    }
+    .manual-actions a,
+    .manual-actions button {
+      background: rgba(255, 255, 255, .16) !important;
+      border: 1px solid rgba(255, 255, 255, .36) !important;
+      color: #ffffff !important;
+    }
+    .manual-body {
+      background: #f8fafc !important;
+      color: #172033 !important;
+    }
+    .manual-body,
+    .manual-body p,
+    .manual-body li,
+    .manual-body td,
+    .manual-body th,
+    .manual-body div,
+    .manual-body span {
+      color: #172033 !important;
+      opacity: 1 !important;
+    }
+    .manual-body h3 {
+      color: #0f4c81 !important;
+      border-left-color: #0ea5b7 !important;
+      text-shadow: none !important;
+    }
+    .manual-body h4 {
+      color: #12304a !important;
+    }
+    .manual-cover {
+      background: #eaf6ff !important;
+      border: 1px solid #b7dcf5 !important;
+      color: #172033 !important;
+    }
+    .manual-cover h3,
+    .manual-cover p,
+    .manual-cover strong {
+      color: #12304a !important;
+    }
+    .manual-toc {
+      background: #e7f5ff !important;
+      border: 1px solid #b9e0f7 !important;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .75) !important;
+    }
+    .manual-toc a {
+      color: #075985 !important;
+      opacity: 1 !important;
+      font-weight: 800 !important;
+    }
+    .manual-body table {
+      background: #ffffff !important;
+      border: 1px solid #cbd5e1 !important;
+      box-shadow: 0 8px 22px rgba(15, 23, 42, .06) !important;
+    }
+    .manual-body th {
+      background: #17496b !important;
+      color: #ffffff !important;
+      border-color: #17496b !important;
+      font-weight: 800 !important;
+    }
+    .manual-body td {
+      background: #ffffff !important;
+      color: #172033 !important;
+      border-color: #cbd5e1 !important;
+    }
+    .manual-body tr:nth-child(even) td {
+      background: #f1f7fb !important;
+      color: #172033 !important;
+    }
+    .manual-note {
+      background: #fff7ed !important;
+      border: 1px solid #fed7aa !important;
+      color: #9a3412 !important;
+    }
+    .manual-note strong,
+    .manual-note p,
+    .manual-note span {
+      color: #9a3412 !important;
+    }
+    .manual-tip {
+      background: #ecfeff !important;
+      border: 1px solid #a5f3fc !important;
+      color: #155e75 !important;
+    }
+    .manual-tip strong,
+    .manual-tip p,
+    .manual-tip span {
+      color: #155e75 !important;
+    }
+
   </style>
 </head>
 <body>
@@ -1558,12 +2012,12 @@
         </div>
         <p class="subtitle">操作流程：开始录音 / 上传音频 → 观察旋律线 → 回放定位 → 生成谱例。</p>
         <div class="feature-chips" aria-label="系统特点">
-          <span class="feature-chip">🎙️ 实时拾音</span>
-          <span class="feature-chip">📁 音频上传</span>
-          <span class="feature-chip">📈 旋律线观察</span>
-          <span class="feature-chip">🎼 简谱 / 五线谱</span>
-          <span class="feature-chip">🖼️ 图片导出</span>
-          <span class="feature-chip">📘 在线操作手册</span>
+          <span class="feature-chip">◉ 实时拾音</span>
+          <span class="feature-chip">◈ 音频上传</span>
+          <span class="feature-chip">◌ 旋律观察</span>
+          <span class="feature-chip">♪ 谱例生成</span>
+          <span class="feature-chip">◫ 图片导出</span>
+          <span class="feature-chip">✦ 在线手册</span>
         </div>
       </div>
 
@@ -1573,7 +2027,7 @@
             <p class="eyebrow">快速上手</p>
             <h2>3 步完成课堂演示</h2>
           </div>
-          <button id="openManual" class="manual-btn compact-btn">📘 操作手册</button>
+          <button id="openManual" class="manual-btn compact-btn">✦ 操作手册</button>
         </div>
         <ol class="quick-steps">
           <li><strong>输入声音</strong><span>点击“开始录音”，听完预备拍后演唱；或上传 mp3 / wav 音频。</span></li>
@@ -1596,10 +2050,10 @@
         <div class="action-group">
           <p class="group-label">输入控制</p>
           <div class="button-grid four-col recording-grid">
-            <button id="startMic" class="primary">🔴 开始录音</button>
-            <button id="pauseRecording" class="pause-btn" disabled>⏸️ 暂停录音</button>
-            <button id="stopMic" class="stop" disabled>⏹️ 结束录音</button>
-            <label class="file-label upload-btn" for="audioFile">📁 上传 mp3 / wav</label>
+            <button id="startMic" class="primary">● 开始录音</button>
+            <button id="pauseRecording" class="pause-btn" disabled>Ⅱ 暂停录音</button>
+            <button id="stopMic" class="stop" disabled>■ 结束录音</button>
+            <label class="file-label upload-btn" for="audioFile">↥ 上传 mp3 / wav</label>
             <input id="audioFile" type="file" accept="audio/*,.mp3,.wav,.m4a,.ogg" />
           </div>
         </div>
@@ -1607,10 +2061,10 @@
         <div class="action-group secondary-group">
           <p class="group-label">输出与整理</p>
           <div class="button-grid four-col">
-            <button id="generateNotation" class="notation-btn">🎼 生成简谱 / 五线谱</button>
-            <button id="exportNotation" class="ghost">⬇️ 导出谱图</button>
-            <button id="save" class="success">🖼️ 保存图片</button>
-            <button id="clear" class="ghost">🧹 清空画布</button>
+            <button id="generateNotation" class="notation-btn">♪ 生成简谱 / 五线谱</button>
+            <button id="exportNotation" class="ghost">⇩ 导出谱图</button>
+            <button id="save" class="success">⤓ 保存图片</button>
+            <button id="clear" class="ghost">⌫ 清空画布</button>
           </div>
         </div>
 
@@ -1620,8 +2074,8 @@
             <div id="metroIndicator" class="metro-indicator">等待开始</div>
           </div>
           <div class="metronome-control-row">
-            <button id="startMetro" class="metro-start">▶️ 开始节拍器</button>
-            <button id="stopMetro" class="metro-stop" disabled>⏸️ 停止节拍器</button>
+            <button id="startMetro" class="metro-start">▶ 开始节拍器</button>
+            <button id="stopMetro" class="metro-stop" disabled>■ 停止节拍器</button>
             <label class="mini-field"><span>声音</span><select id="metroSound"><option value="wood">木鱼 / 木块</option><option value="electronic">电子哔声</option><option value="stick">鼓棒短音</option><option value="soft">柔和提示音</option></select></label>
             <label class="mini-field wide"><span>音量 <b id="metroVolumeValue">60%</b></span><input id="metroVolume" type="range" min="0" max="1" step="0.05" value="0.60"></label>
           </div>
@@ -1721,9 +2175,9 @@
             <span>与功能区同步。</span>
           </div>
           <div class="stage-record-actions">
-            <button id="stageStartRecording" class="primary compact-stage-btn">🔴 开始录音</button>
-            <button id="stagePauseRecording" class="pause-btn compact-stage-btn" disabled>⏸️ 暂停录音</button>
-            <button id="stageStopRecording" class="stop compact-stage-btn" disabled>⏹️ 结束录音</button>
+            <button id="stageStartRecording" class="primary compact-stage-btn">● 开始录音</button>
+            <button id="stagePauseRecording" class="pause-btn compact-stage-btn" disabled>Ⅱ 暂停录音</button>
+            <button id="stageStopRecording" class="stop compact-stage-btn" disabled>■ 结束录音</button>
           </div>
         </div>
         <div class="stage-playback-card single-playback-card" aria-label="观察区音频播放">
@@ -2483,9 +2937,9 @@
       const isPaused = recordingStatus === 'paused';
       const isFinishing = recordingStatus === 'finishing';
 
-      const startText = isPaused ? '▶️ 继续录音' : isCountIn ? '⏳ 预备拍中' : '🔴 开始录音';
-      const pauseText = '⏸️ 暂停录音';
-      const stopText = isFinishing ? '⏳ 生成录音' : '⏹️ 结束录音';
+      const startText = isPaused ? '▶️ 继续录音' : isCountIn ? '⏳ 预备拍中' : '● 开始录音';
+      const pauseText = 'Ⅱ 暂停录音';
+      const stopText = isFinishing ? '⏳ 生成录音' : '■ 结束录音';
 
       [startMicBtn, stageStartRecordingBtn].filter(Boolean).forEach(btn => {
         btn.textContent = startText;
