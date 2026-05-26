@@ -1,0 +1,1232 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>音乐教学实时音频旋律线条可视化系统｜精细音高刻度版｜作者：丘比特</title>
+  <meta name="author" content="丘比特" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: rgba(15, 23, 42, .78);
+      --panel2: rgba(30, 41, 59, .82);
+      --line: rgba(148, 163, 184, .22);
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --good: #22c55e;
+      --warn: #f59e0b;
+      --danger: #fb7185;
+      --card-radius: 22px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 20% 10%, rgba(56, 189, 248, .18), transparent 28%),
+        radial-gradient(circle at 80% 0%, rgba(244, 114, 182, .13), transparent 24%),
+        linear-gradient(135deg, #020617 0%, #0f172a 50%, #111827 100%);
+    }
+    .app {
+      width: min(1440px, calc(100vw - 28px));
+      margin: 0 auto;
+      padding: 22px 0 32px;
+    }
+    header {
+      display: grid;
+      grid-template-columns: 1.4fr .8fr;
+      gap: 18px;
+      align-items: stretch;
+      margin-bottom: 18px;
+    }
+    .hero, .panel {
+      border: 1px solid rgba(148, 163, 184, .22);
+      border-radius: var(--card-radius);
+      background: var(--panel);
+      box-shadow: 0 18px 60px rgba(0, 0, 0, .32);
+      backdrop-filter: blur(12px);
+    }
+    .hero { padding: 22px; }
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(24px, 4vw, 44px);
+      line-height: 1.05;
+      letter-spacing: -.04em;
+    }
+
+    .hero-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 10px;
+    }
+    .hero-top h1 { margin-bottom: 0; }
+    .author-badge {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      color: #bae6fd;
+      background: rgba(56, 189, 248, .14);
+      border: 1px solid rgba(56, 189, 248, .28);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .02em;
+      white-space: nowrap;
+      margin-top: 2px;
+    }
+    .subtitle {
+      color: var(--muted);
+      margin: 0;
+      line-height: 1.7;
+      font-size: 15px;
+    }
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      padding: 18px;
+    }
+    .legend-item {
+      min-height: 66px;
+      padding: 12px;
+      border-radius: 18px;
+      background: rgba(15, 23, 42, .58);
+      border: 1px solid rgba(148, 163, 184, .13);
+    }
+    .legend-item strong { display: block; margin-bottom: 5px; }
+    .legend-item span { display: block; color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+    .controls, .settings {
+      padding: 16px;
+    }
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    button, .file-label {
+      border: 0;
+      color: white;
+      background: rgba(51, 65, 85, .9);
+      padding: 11px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 700;
+      letter-spacing: .02em;
+      transition: transform .15s ease, background .15s ease, opacity .15s ease;
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+    }
+    button:hover, .file-label:hover { transform: translateY(-1px); background: rgba(71, 85, 105, .98); }
+    button:disabled { opacity: .46; cursor: not-allowed; transform: none; }
+    .primary { background: linear-gradient(135deg, #0284c7, #0891b2); }
+    .stop { background: linear-gradient(135deg, #be123c, #e11d48); }
+    .success { background: linear-gradient(135deg, #15803d, #16a34a); }
+    .ghost { background: rgba(30, 41, 59, .95); }
+    input[type="file"] { display: none; }
+    audio {
+      width: 100%;
+      margin-top: 12px;
+      filter: invert(1) hue-rotate(180deg);
+      opacity: .92;
+    }
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    label.range, .check {
+      display: block;
+      padding: 12px;
+      border-radius: 18px;
+      background: rgba(15, 23, 42, .54);
+      border: 1px solid rgba(148, 163, 184, .13);
+      color: var(--muted);
+      font-size: 13px;
+    }
+    label.range strong, .check strong { color: var(--text); display: block; margin-bottom: 7px; font-size: 14px; }
+    input[type="range"] { width: 100%; accent-color: var(--accent); }
+    input[type="checkbox"] { transform: translateY(2px); accent-color: var(--accent); }
+    .stage {
+      border: 1px solid rgba(148, 163, 184, .22);
+      border-radius: var(--card-radius);
+      background: rgba(2, 6, 23, .72);
+      box-shadow: 0 18px 70px rgba(0, 0, 0, .36);
+      overflow: hidden;
+    }
+    .stage-top {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1px;
+      background: rgba(148, 163, 184, .16);
+      border-bottom: 1px solid rgba(148, 163, 184, .2);
+    }
+    .metric {
+      padding: 14px 16px;
+      background: rgba(15, 23, 42, .86);
+      min-height: 74px;
+    }
+    .metric span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 5px; }
+    .metric strong { display: block; font-size: clamp(18px, 2.4vw, 26px); line-height: 1.1; }
+    .canvas-wrap {
+      position: relative;
+      overflow: auto;
+      height: min(62vh, 620px);
+      min-height: 410px;
+      background:
+        linear-gradient(90deg, rgba(148, 163, 184, .08) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(148, 163, 184, .08) 1px, transparent 1px),
+        radial-gradient(circle at center, rgba(15, 23, 42, .2), transparent 70%);
+      background-size: 80px 80px, 80px 80px, cover;
+    }
+    canvas { display: block; height: 520px; min-width: 100%; }
+    .hint {
+      position: absolute;
+      left: 18px;
+      bottom: 18px;
+      max-width: 740px;
+      padding: 12px 14px;
+      color: #cbd5e1;
+      background: rgba(15, 23, 42, .74);
+      border: 1px solid rgba(148, 163, 184, .16);
+      border-radius: 16px;
+      line-height: 1.7;
+      font-size: 13px;
+      pointer-events: none;
+    }
+    .status {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(15, 23, 42, .56);
+      color: var(--muted);
+      border: 1px solid rgba(148, 163, 184, .12);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+    .pill {
+      display: inline-flex;
+      padding: 2px 9px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, .16);
+      color: #bae6fd;
+      border: 1px solid rgba(56, 189, 248, .26);
+      margin-right: 5px;
+      white-space: nowrap;
+    }
+    .footer-note {
+      color: var(--muted);
+      line-height: 1.8;
+      padding: 14px 4px 0;
+      font-size: 13px;
+    }
+    @media (max-width: 980px) {
+      header, .toolbar { grid-template-columns: 1fr; }
+      .stage-top { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .settings-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 560px) {
+      .app { width: min(100vw - 18px, 1440px); padding-top: 10px; }
+      .hero-top { flex-direction: column; align-items: flex-start; }
+      .hero, .panel, .stage { border-radius: 18px; }
+      .legend, .settings-grid, .stage-top { grid-template-columns: 1fr; }
+      .button-row button, .file-label { flex: 1 1 100%; }
+      .canvas-wrap { min-height: 360px; height: 58vh; }
+      canvas { height: 460px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <section class="hero">
+        <div class="hero-top">
+          <h1>实时音频旋律线条可视化系统</h1>
+          <span class="author-badge">作者：丘比特</span>
+        </div>
+        <p class="subtitle">
+          面向中小学 / 初中音乐课堂：麦克风拾音或上传 mp3、wav 后，系统会把音高、力度、节奏、休止、乐句转换为可观察的线条。适合演唱示范、乐句分析、旋律走向比较和课堂即时反馈。
+        </p>
+      </section>
+      <section class="panel legend" aria-label="可视化规则">
+        <div class="legend-item"><strong>音高 / 旋律</strong><span>Y 轴上下变化：高音上移，低音下沉。</span></div>
+        <div class="legend-item"><strong>力度 / 音量</strong><span>线条粗细与透明度：强音更粗、更实。</span></div>
+        <div class="legend-item"><strong>节奏 / 节拍</strong><span>按真实时间横向推进：快节奏图形更密集。</span></div>
+        <div class="legend-item"><strong>休止 / 乐句</strong><span>低于阈值断线留白，长停顿自动标记乐句。</span></div>
+      </section>
+    </header>
+
+    <section class="toolbar">
+      <div class="panel controls">
+        <div class="button-row">
+          <button id="startMic" class="primary">🎙️ 开启麦克风</button>
+          <button id="stopMic" class="stop" disabled>⏹️ 关闭麦克风</button>
+          <label class="file-label" for="audioFile">📁 上传 mp3 / wav</label>
+          <input id="audioFile" type="file" accept="audio/*,.mp3,.wav,.m4a,.ogg" />
+          <button id="clear" class="ghost">🧹 清空画布</button>
+          <button id="save" class="success">🖼️ 保存图片</button>
+        </div>
+        <audio id="audio" controls preload="metadata"></audio>
+        <div id="status" class="status">
+          <span class="pill">提示</span>先点击“开启麦克风”进行实时演唱，或上传音频后点击播放器播放。麦克风在多数浏览器中需要 HTTPS 或 localhost 环境。
+        </div>
+      </div>
+
+      <div class="panel settings">
+        <div class="settings-grid">
+          <label class="range"><strong>休止阈值 <span id="silenceValue">0.035</span></strong><input id="silence" type="range" min="0.005" max="0.12" value="0.035" step="0.005"></label>
+          <label class="range"><strong>线条平滑 <span id="smoothValue">0.90</span></strong><input id="smooth" type="range" min="0.2" max="0.98" value="0.90" step="0.01"></label>
+          <label class="range"><strong>横向速度 <span id="speedValue">95</span> px/s</strong><input id="speed" type="range" min="45" max="190" value="95" step="5"></label>
+          <label class="range"><strong>最低音 <span id="minFreqValue">70</span> Hz</strong><input id="minFreq" type="range" min="40" max="180" value="70" step="5"></label>
+          <label class="range"><strong>最高音 <span id="maxFreqValue">1000</span> Hz</strong><input id="maxFreq" type="range" min="500" max="1800" value="1000" step="50"></label>
+          <label class="range"><strong>乐句停顿 <span id="phraseValue">0.70</span> s</strong><input id="phraseGap" type="range" min="0.25" max="1.8" value="0.70" step="0.05"></label>
+          <label class="check"><strong>显示采样点</strong><input id="dots" type="checkbox" checked> 点位越密集，课堂上越容易观察节奏变化。</label>
+          <label class="check"><strong>稳线模式</strong><input id="steadyMode" type="checkbox" checked> 抑制细碎抖动，课堂展示旋律走向更清楚。</label>
+          <label class="check"><strong>精准音高</strong><input id="pitchLock" type="checkbox" checked> 使用基频算法与倍频纠错，减少跑高、跑低。</label>
+          <label class="check"><strong>自动跟随</strong><input id="autoScroll" type="checkbox" checked> 实时模式下自动滚动到最新线条。</label>
+          <label class="check"><strong>色彩映射</strong><input id="colorMode" type="checkbox" checked> 高音偏暖色，低音偏冷色。</label>
+        </div>
+      </div>
+    </section>
+
+    <section class="stage">
+      <div class="stage-top">
+        <div class="metric"><span>当前音高</span><strong id="pitchReadout">—</strong></div>
+        <div class="metric"><span>唱名 / 音名</span><strong id="noteReadout">—</strong></div>
+        <div class="metric"><span>力度 RMS</span><strong id="volumeReadout">0.000</strong></div>
+        <div class="metric"><span>乐句</span><strong id="phraseReadout">第 1 句</strong></div>
+      </div>
+      <div id="scroller" class="canvas-wrap">
+        <canvas id="canvas"></canvas>
+        <div class="hint">
+          教学读图法：线条上扬表示旋律上行，下沉表示旋律下行；粗线多为强音，细线多为弱音；断开留白表示休止或换气；虚线表示系统依据停顿自动识别的乐句分隔。
+        </div>
+      </div>
+    </section>
+
+    <p class="footer-note">
+      作者：丘比特｜课堂建议：先让学生闭眼聆听，再观察线条，最后用“上行 / 下行 / 平行 / 强弱 / 停顿 / 乐句”描述音乐结构。系统采用浏览器端分析，不上传学生声音。
+    </p>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const canvas = $('canvas');
+    const ctx = canvas.getContext('2d');
+    const scroller = $('scroller');
+    const audioEl = $('audio');
+
+    const startMicBtn = $('startMic');
+    const stopMicBtn = $('stopMic');
+    const clearBtn = $('clear');
+    const saveBtn = $('save');
+    const audioFile = $('audioFile');
+    const statusEl = $('status');
+
+    const controls = {
+      silence: $('silence'),
+      smooth: $('smooth'),
+      speed: $('speed'),
+      minFreq: $('minFreq'),
+      maxFreq: $('maxFreq'),
+      phraseGap: $('phraseGap'),
+      dots: $('dots'),
+      steadyMode: $('steadyMode'),
+      pitchLock: $('pitchLock'),
+      autoScroll: $('autoScroll'),
+      colorMode: $('colorMode')
+    };
+
+    const readout = {
+      pitch: $('pitchReadout'),
+      note: $('noteReadout'),
+      volume: $('volumeReadout'),
+      phrase: $('phraseReadout')
+    };
+
+    let audioCtx = null;
+    let analyser = null;
+    let timeBuffer = null;
+    let micStream = null;
+    let micSource = null;
+    let fileSource = null;
+    let rafId = null;
+    let mode = 'idle';
+    let running = false;
+
+    let points = [];
+    let phraseMarkers = [];
+    let restMarkers = [];
+    let phraseIndex = 1;
+    let startAudioTime = 0;
+    let lastFrameWallTime = 0;
+    let lastAcceptedT = 0;
+    let lastVoicedT = 0;
+    let silenceStartT = null;
+    let restMarkerArmed = true;
+    let previousPitch = null;
+    let previousPoint = null;
+    let pitchHistory = [];
+    let virtualWidth = 1200;
+    let canvasHeight = 520;
+    let dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+
+    const NOTE_NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
+    const SOLFEGE = ['Do', 'Di', 'Re', 'Ri', 'Mi', 'Fa', 'Fi', 'Sol', 'Si', 'La', 'Li', 'Ti'];
+
+    function setStatus(html) {
+      statusEl.innerHTML = html;
+    }
+
+    function updateControlLabels() {
+      $('silenceValue').textContent = Number(controls.silence.value).toFixed(3);
+      $('smoothValue').textContent = Number(controls.smooth.value).toFixed(2);
+      $('speedValue').textContent = controls.speed.value;
+      $('minFreqValue').textContent = controls.minFreq.value;
+      $('maxFreqValue').textContent = controls.maxFreq.value;
+      $('phraseValue').textContent = Number(controls.phraseGap.value).toFixed(2);
+    }
+
+    Object.values(controls).forEach(el => el.addEventListener('input', () => {
+      updateControlLabels();
+      draw();
+    }));
+    updateControlLabels();
+
+    function ensureCanvasSize() {
+      canvasHeight = Math.max(430, Math.min(620, scroller.clientHeight || 520));
+      virtualWidth = Math.max(virtualWidth, scroller.clientWidth || 1200);
+      canvas.style.width = virtualWidth + 'px';
+      canvas.style.height = canvasHeight + 'px';
+      canvas.width = Math.floor(virtualWidth * dpr);
+      canvas.height = Math.floor(canvasHeight * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      draw();
+    }
+
+    window.addEventListener('resize', () => {
+      dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+      ensureCanvasSize();
+    });
+
+    // 横向滚动时重绘左侧音高轴，使 Y 轴刻度始终贴在当前视口左侧，便于课堂观察。
+    scroller.addEventListener('scroll', () => draw());
+
+    function resetAnalysisState({keepWidth = false} = {}) {
+      points = [];
+      phraseMarkers = [];
+      restMarkers = [];
+      phraseIndex = 1;
+      lastAcceptedT = 0;
+      lastVoicedT = 0;
+      silenceStartT = null;
+      restMarkerArmed = true;
+      previousPitch = null;
+      previousPoint = null;
+      pitchHistory = [];
+      if (!keepWidth) virtualWidth = Math.max(1200, scroller.clientWidth || 1200);
+      readout.pitch.textContent = '—';
+      readout.note.textContent = '—';
+      readout.volume.textContent = '0.000';
+      readout.phrase.textContent = '第 1 句';
+      ensureCanvasSize();
+    }
+
+    async function ensureAudioContext() {
+      if (!audioCtx || audioCtx.state === 'closed') {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') await audioCtx.resume();
+      if (!analyser) {
+        analyser = audioCtx.createAnalyser();
+        // 4096 兼顾低音基频精度与课堂实时性；过短会导致男声、低音器乐识别不稳。
+        analyser.fftSize = 4096;
+        analyser.smoothingTimeConstant = 0.06;
+        timeBuffer = new Float32Array(analyser.fftSize);
+      }
+    }
+
+    function disconnectNode(node) {
+      try { if (node) node.disconnect(); } catch (e) {}
+    }
+
+    function disconnectCurrentSources() {
+      disconnectNode(micSource);
+      micSource = null;
+      disconnectNode(fileSource);
+      try { if (analyser) analyser.disconnect(); } catch (e) {}
+    }
+
+    async function startMic() {
+      try {
+        await ensureAudioContext();
+        stopFilePlayback();
+        disconnectCurrentSources();
+        micStream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: false,
+            noiseSuppression: false,
+            autoGainControl: false,
+            channelCount: 1
+          }
+        });
+        micSource = audioCtx.createMediaStreamSource(micStream);
+        micSource.connect(analyser);
+        mode = 'mic';
+        running = true;
+        startAudioTime = audioCtx.currentTime;
+        startMicBtn.disabled = true;
+        stopMicBtn.disabled = false;
+        resetAnalysisState();
+        setStatus('<span class="pill">麦克风已开启</span>请演唱、说话或演奏乐器。声音低于阈值会自动断线，较长停顿会标记为新乐句。');
+        loop();
+      } catch (err) {
+        setStatus('<span class="pill" style="background:rgba(251,113,133,.18);color:#fecdd3;border-color:rgba(251,113,133,.32)">无法开启麦克风</span>' + escapeHtml(err.message || String(err)) + '。请确认浏览器权限，并使用 HTTPS 或 localhost 打开。');
+      }
+    }
+
+    function stopMic() {
+      running = false;
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = null;
+      if (micStream) micStream.getTracks().forEach(t => t.stop());
+      micStream = null;
+      disconnectNode(micSource);
+      micSource = null;
+      mode = 'idle';
+      startMicBtn.disabled = false;
+      stopMicBtn.disabled = true;
+      setStatus('<span class="pill">麦克风已关闭</span>可保存图片、清空画布，或上传音频继续分析。');
+    }
+
+    function stopFilePlayback() {
+      if (!audioEl.paused) audioEl.pause();
+    }
+
+    async function handleFile(file) {
+      if (!file) return;
+      await ensureAudioContext();
+      stopMic();
+      disconnectCurrentSources();
+      const oldUrl = audioEl.dataset.url;
+      if (oldUrl) URL.revokeObjectURL(oldUrl);
+      const url = URL.createObjectURL(file);
+      audioEl.dataset.url = url;
+      audioEl.src = url;
+      audioEl.load();
+      mode = 'file';
+      if (!fileSource) {
+        // createMediaElementSource 同一个 audio 元素在同一 AudioContext 中只能创建一次；这里复用节点。
+        fileSource = audioCtx.createMediaElementSource(audioEl);
+      }
+      fileSource.connect(analyser);
+      analyser.connect(audioCtx.destination);
+      resetAnalysisState();
+      setStatus('<span class="pill">已载入音频</span>' + escapeHtml(file.name) + '。点击播放器播放后，系统会按播放进度同步绘制旋律线。');
+    }
+
+    audioFile.addEventListener('change', (e) => handleFile(e.target.files[0]));
+
+    audioEl.addEventListener('play', async () => {
+      await ensureAudioContext();
+      if (mode !== 'file') mode = 'file';
+      running = true;
+      lastFrameWallTime = 0;
+      loop();
+      setStatus('<span class="pill">音频播放中</span>正在同步绘制完整旋律线。可拖动播放器进度重新观察局部乐句。');
+    });
+
+    audioEl.addEventListener('pause', () => {
+      if (mode === 'file') {
+        running = false;
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = null;
+        setStatus('<span class="pill">音频已暂停</span>当前线条已保留，可继续播放或保存图片。');
+      }
+    });
+
+    audioEl.addEventListener('seeked', () => {
+      if (mode === 'file') {
+        resetAnalysisState();
+        setStatus('<span class="pill">已重新定位</span>画布已清空，将从当前播放位置重新绘制，便于聚焦分析某一段。');
+      }
+    });
+
+    audioEl.addEventListener('ended', () => {
+      running = false;
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = null;
+      setStatus('<span class="pill">绘制完成</span>可保存旋律线图片，用于课堂板书、学生作品或课后分析。');
+    });
+
+    function loop(now = performance.now()) {
+      if (!running || !analyser) return;
+      rafId = requestAnimationFrame(loop);
+      if (now - lastFrameWallTime < 38) return;
+      lastFrameWallTime = now;
+      const t = mode === 'file' ? audioEl.currentTime : Math.max(0, audioCtx.currentTime - startAudioTime);
+      analyzeFrame(t);
+    }
+
+    function analyzeFrame(t) {
+      if (!analyser || t < lastAcceptedT - 0.05) return;
+      lastAcceptedT = t;
+      analyser.getFloatTimeDomainData(timeBuffer);
+      const rms = computeRMS(timeBuffer);
+      const silenceThreshold = Number(controls.silence.value);
+      const phraseGap = Number(controls.phraseGap.value);
+      const pxPerSec = Number(controls.speed.value);
+      const minFreq = Math.min(Number(controls.minFreq.value), Number(controls.maxFreq.value) - 20);
+      const maxFreq = Math.max(Number(controls.maxFreq.value), minFreq + 20);
+      const x = 48 + t * pxPerSec;
+      growCanvasIfNeeded(x + 220);
+      readout.volume.textContent = rms.toFixed(3);
+
+      if (rms < silenceThreshold) {
+        if (silenceStartT === null) {
+          silenceStartT = t;
+          restMarkerArmed = true;
+        }
+        const silenceLen = t - silenceStartT;
+        if (silenceLen > 0.18 && restMarkerArmed && points.length) {
+          restMarkers.push({ x, label: silenceLen > phraseGap ? '乐句停顿' : '休止 / 换气' });
+          restMarkerArmed = false;
+          draw();
+        }
+        // 停顿稍长时重置音高记忆，避免下一句的第一个音被上一句拖拽。
+        if (silenceLen > 0.32) {
+          previousPitch = null;
+          previousPoint = null;
+          pitchHistory = [];
+        }
+        readout.pitch.textContent = '休止';
+        readout.note.textContent = '—';
+        return;
+      }
+
+      const detected = detectPitch(timeBuffer, audioCtx.sampleRate, minFreq, maxFreq);
+      if (!detected || !isFinite(detected.frequency)) {
+        readout.pitch.textContent = '未稳定';
+        readout.note.textContent = '—';
+        return;
+      }
+
+      const pitch = stabilizePitch(detected.frequency, detected.confidence, minFreq, maxFreq);
+      if (!pitch) {
+        readout.pitch.textContent = '未稳定';
+        readout.note.textContent = '—';
+        return;
+      }
+
+      let breakBefore = false;
+      if (silenceStartT !== null) {
+        const silenceLen = t - silenceStartT;
+        breakBefore = silenceLen > 0.12;
+        if (silenceLen >= phraseGap && points.length) {
+          phraseIndex += 1;
+          phraseMarkers.push({ x, label: '第 ' + phraseIndex + ' 句' });
+          breakBefore = true;
+        }
+        silenceStartT = null;
+      }
+      lastVoicedT = t;
+
+      let y = freqToY(pitch, minFreq, maxFreq);
+      if (previousPoint && !breakBefore && !previousPoint.breakBefore) {
+        const yAlpha = getVisualSmoothingWeight();
+        y = previousPoint.y * yAlpha + y * (1 - yAlpha);
+        const deadZonePx = controls.steadyMode.checked ? 1.8 : 0.7;
+        if (Math.abs(y - previousPoint.y) < deadZonePx) y = previousPoint.y;
+      }
+      const ampNorm = clamp((rms - silenceThreshold) / 0.18, 0, 1);
+      const width = 1.2 + ampNorm * 8.8;
+      const alpha = 0.28 + ampNorm * 0.72;
+      const color = pitchToColor(pitch, minFreq, maxFreq);
+      const note = freqToNote(pitch);
+      const p = { t, x, y, pitch, rms, width, alpha, color, note, breakBefore };
+      points.push(p);
+      if (points.length > 12000) points.splice(0, points.length - 12000);
+      previousPoint = p;
+
+      readout.pitch.textContent = Math.round(pitch) + ' Hz';
+      readout.note.textContent = note.name + ' / ' + note.solfege + '（' + formatCents(note.cents) + '）';
+      readout.phrase.textContent = '第 ' + phraseIndex + ' 句';
+      draw();
+      if (controls.autoScroll.checked) scroller.scrollLeft = Math.max(0, scroller.scrollWidth - scroller.clientWidth - 12);
+    }
+
+    function growCanvasIfNeeded(requiredWidth) {
+      if (requiredWidth <= virtualWidth) return;
+      virtualWidth = Math.ceil(requiredWidth / 400) * 400;
+      ensureCanvasSize();
+    }
+
+    function computeRMS(buf) {
+      let sum = 0;
+      for (let i = 0; i < buf.length; i++) sum += buf[i] * buf[i];
+      return Math.sqrt(sum / buf.length);
+    }
+
+    function stabilizePitch(rawPitch, confidence, minFreq, maxFreq) {
+      if (!isFinite(rawPitch) || rawPitch <= 0) return null;
+      const smoothing = Number(controls.smooth.value);
+      const steady = controls.steadyMode.checked;
+      let corrected = rawPitch;
+
+      // 1. 倍频/半频纠错：识别结果偶尔会跳到 2 倍或 1/2 倍频率。
+      // 有上一帧音高时，优先选与上一帧更接近、且仍在设定音域内的候选值。
+      if (previousPitch) {
+        const candidates = [rawPitch / 2, rawPitch, rawPitch * 2, rawPitch * 3 / 2, rawPitch * 2 / 3]
+          .filter(f => f >= minFreq && f <= maxFreq);
+        corrected = candidates.reduce((best, f) => {
+          const dBest = Math.abs(Math.log2(best / previousPitch));
+          const d = Math.abs(Math.log2(f / previousPitch));
+          return d + 0.06 < dBest ? f : best;
+        }, rawPitch);
+      }
+
+      // 2. 中值滤波：过滤一次性尖峰，但窗口不宜过大，否则真实跳进会被拖慢。
+      pitchHistory.push(corrected);
+      const historySize = steady ? 5 : 3;
+      if (pitchHistory.length > historySize) pitchHistory.shift();
+      const sorted = pitchHistory.slice().sort((a, b) => a - b);
+      let median = sorted[Math.floor(sorted.length / 2)] || corrected;
+
+      // 3. 置信度低时不急于改写音高；置信度高时允许真实旋律跳进。
+      if (previousPitch) {
+        const rawDeltaSemi = 12 * Math.log2(median / previousPitch);
+        const confidenceFactor = confidence < 0.70 ? 0.55 : confidence < 0.82 ? 0.78 : 1;
+        const maxStepSemi = steady
+          ? (2.0 + (1 - smoothing) * 5.0) * confidenceFactor
+          : (4.0 + (1 - smoothing) * 8.0) * confidenceFactor;
+        const limitedSemi = clamp(rawDeltaSemi, -maxStepSemi, maxStepSemi);
+        let limitedPitch = previousPitch * Math.pow(2, limitedSemi / 12);
+
+        // 死区只处理非常小的抖动，不再压制真实的二度、三度进行。
+        const deadbandSemi = steady ? (0.05 + smoothing * 0.07) : 0.03;
+        if (Math.abs(rawDeltaSemi) < deadbandSemi) limitedPitch = previousPitch;
+
+        // 音高数据层轻度平滑；视觉层另有更强平滑，避免“看起来稳但读数不准”。
+        const prevWeight = steady
+          ? clamp(0.22 + smoothing * 0.42, 0.22, 0.66)
+          : clamp(smoothing * 0.28, 0.04, 0.36);
+        const deltaOct = Math.log2(limitedPitch / previousPitch);
+        median = previousPitch * Math.pow(2, deltaOct * (1 - prevWeight));
+      }
+
+      previousPitch = clamp(median, minFreq, maxFreq);
+      return previousPitch;
+    }
+
+    function getVisualSmoothingWeight() {
+      const smoothing = Number(controls.smooth.value);
+      if (controls.steadyMode.checked) return clamp(0.42 + smoothing * 0.48, 0.42, 0.88);
+      return clamp(smoothing * 0.42, 0, 0.48);
+    }
+
+    function detectPitch(buf, sampleRate, minFreq, maxFreq) {
+      // 默认使用 YIN / CMND 基频检测，比普通自相关更不容易把泛音误判成音高。
+      if (controls.pitchLock && controls.pitchLock.checked) {
+        const yin = detectPitchYIN(buf, sampleRate, minFreq, maxFreq);
+        if (yin) return yin;
+      }
+      return detectPitchACF(buf, sampleRate, minFreq, maxFreq);
+    }
+
+    function detectPitchYIN(buf, sampleRate, minFreq, maxFreq) {
+      const size = buf.length;
+      let mean = 0;
+      for (let i = 0; i < size; i++) mean += buf[i];
+      mean /= size;
+
+      let energy = 0;
+      for (let i = 0; i < size; i++) {
+        const v = buf[i] - mean;
+        energy += v * v;
+      }
+      const rms = Math.sqrt(energy / size);
+      if (rms < 0.004) return null;
+
+      let tauMin = Math.floor(sampleRate / maxFreq);
+      let tauMax = Math.floor(sampleRate / minFreq);
+      tauMin = clamp(tauMin, 2, size - 4);
+      tauMax = clamp(tauMax, tauMin + 2, Math.floor(size / 2) - 2);
+
+      const diff = new Float32Array(tauMax + 2);
+      const cmnd = new Float32Array(tauMax + 2);
+      const maxSamples = Math.min(3072, size - tauMax - 1 > 256 ? size - tauMax - 1 : size - tauMax);
+
+      for (let tau = 1; tau <= tauMax; tau++) {
+        let sum = 0;
+        const limit = Math.min(size - tau, maxSamples);
+        for (let i = 0; i < limit; i++) {
+          const delta = (buf[i] - mean) - (buf[i + tau] - mean);
+          sum += delta * delta;
+        }
+        diff[tau] = sum;
+      }
+
+      cmnd[0] = 1;
+      let runningSum = 0;
+      for (let tau = 1; tau <= tauMax; tau++) {
+        runningSum += diff[tau];
+        cmnd[tau] = runningSum ? diff[tau] * tau / runningSum : 1;
+      }
+
+      const threshold = controls.steadyMode.checked ? 0.13 : 0.17;
+      let tau = -1;
+      for (let i = tauMin; i <= tauMax; i++) {
+        if (cmnd[i] < threshold) {
+          while (i + 1 <= tauMax && cmnd[i + 1] < cmnd[i]) i++;
+          tau = i;
+          break;
+        }
+      }
+
+      // 没有明显低谷时，选择可信度最高的局部低谷；仍不可靠则拒绝，避免乱画。
+      if (tau < 0) {
+        let bestTau = -1;
+        let bestVal = Infinity;
+        for (let i = tauMin + 1; i <= tauMax - 1; i++) {
+          if (cmnd[i] <= cmnd[i - 1] && cmnd[i] <= cmnd[i + 1] && cmnd[i] < bestVal) {
+            bestVal = cmnd[i];
+            bestTau = i;
+          }
+        }
+        if (bestTau < 0 || bestVal > 0.30) return null;
+        tau = bestTau;
+      }
+
+      tau = chooseStableLag(tau, cmnd, tauMin, tauMax, sampleRate);
+      const refinedTau = refineLagParabolic(tau, cmnd, tauMin, tauMax);
+      const frequency = sampleRate / refinedTau;
+      const confidence = clamp(1 - cmnd[tau], 0, 1);
+
+      if (frequency < minFreq || frequency > maxFreq || confidence < 0.62) return null;
+      return { frequency, confidence };
+    }
+
+    function chooseStableLag(tau, cmnd, tauMin, tauMax, sampleRate) {
+      let candidates = [tau];
+
+      // 上一帧存在时，把 1/2、2、3 倍 lag 也作为候选，用来修正倍频/半频。
+      if (previousPitch) {
+        const previousLag = sampleRate / previousPitch;
+        const raw = [tau, tau * 2, tau * 3, tau / 2, tau / 3];
+        candidates = raw
+          .map(v => Math.round(v))
+          .filter(v => v >= tauMin && v <= tauMax && cmnd[v] <= cmnd[tau] * 1.55 + 0.055);
+        if (!candidates.length) candidates = [tau];
+        return candidates.reduce((best, v) => {
+          const scoreBest = Math.abs(Math.log2(best / previousLag)) + cmnd[best] * 0.45;
+          const score = Math.abs(Math.log2(v / previousLag)) + cmnd[v] * 0.45;
+          return score < scoreBest ? v : best;
+        }, candidates[0]);
+      }
+
+      // 第一帧无历史信息时，不轻易降八度；只在更长 lag 明显同样可靠时才选择它。
+      for (const m of [2, 3]) {
+        const v = Math.round(tau * m);
+        if (v <= tauMax && cmnd[v] < cmnd[tau] * 1.12 + 0.015) candidates.push(v);
+      }
+      return candidates.reduce((best, v) => cmnd[v] < cmnd[best] ? v : best, candidates[0]);
+    }
+
+    function refineLagParabolic(tau, values, tauMin, tauMax) {
+      if (tau <= tauMin || tau >= tauMax) return tau;
+      const left = values[tau - 1];
+      const center = values[tau];
+      const right = values[tau + 1];
+      const denom = left - 2 * center + right;
+      if (Math.abs(denom) < 1e-12) return tau;
+      const shift = 0.5 * (left - right) / denom;
+      return tau + clamp(shift, -0.5, 0.5);
+    }
+
+    function detectPitchACF(buf, sampleRate, minFreq, maxFreq) {
+      const size = buf.length;
+      const rms = computeRMS(buf);
+      if (rms < 0.004) return null;
+      let minLag = Math.floor(sampleRate / maxFreq);
+      let maxLag = Math.floor(sampleRate / minFreq);
+      minLag = clamp(minLag, 2, size - 2);
+      maxLag = clamp(maxLag, minLag + 2, size - 2);
+
+      let bestLag = -1;
+      let bestCorr = 0;
+      let lastCorr = 1;
+      let foundLocal = false;
+      const correlations = new Float32Array(maxLag + 1);
+
+      for (let lag = minLag; lag <= maxLag; lag++) {
+        let corr = 0, normA = 0, normB = 0;
+        const limit = size - lag;
+        for (let i = 0; i < limit; i++) {
+          const a = buf[i];
+          const b = buf[i + lag];
+          corr += a * b;
+          normA += a * a;
+          normB += b * b;
+        }
+        corr = corr / Math.sqrt(normA * normB || 1);
+        correlations[lag] = corr;
+        if (corr > bestCorr) {
+          bestCorr = corr;
+          bestLag = lag;
+        }
+        if (lag > minLag && corr > 0.60 && corr > lastCorr) foundLocal = true;
+        if (foundLocal && corr < lastCorr) {
+          bestLag = lag - 1;
+          bestCorr = correlations[bestLag];
+          break;
+        }
+        lastCorr = corr;
+      }
+      if (bestLag < 0 || bestCorr < 0.50) return null;
+
+      const c0 = correlations[bestLag - 1] || bestCorr;
+      const c1 = correlations[bestLag] || bestCorr;
+      const c2 = correlations[bestLag + 1] || bestCorr;
+      const shift = (c2 - c0) / (2 * (2 * c1 - c2 - c0) || 1);
+      const betterLag = bestLag + clamp(shift, -0.5, 0.5);
+      return { frequency: sampleRate / betterLag, confidence: bestCorr };
+    }
+
+    function freqToY(freq, minFreq, maxFreq) {
+      const topPad = 34;
+      const bottomPad = 48;
+      const rel = clamp(Math.log2(freq / minFreq) / Math.log2(maxFreq / minFreq), 0, 1);
+      return canvasHeight - bottomPad - rel * (canvasHeight - topPad - bottomPad);
+    }
+
+    function pitchToColor(freq, minFreq, maxFreq) {
+      if (!controls.colorMode.checked) return 'hsl(190 90% 62%)';
+      const rel = clamp(Math.log2(freq / minFreq) / Math.log2(maxFreq / minFreq), 0, 1);
+      const hue = Math.round(215 - rel * 195);
+      const light = Math.round(56 + rel * 5);
+      return `hsl(${hue} 92% ${light}%)`;
+    }
+
+    function midiToFreq(midi) {
+      return 440 * Math.pow(2, (midi - 69) / 12);
+    }
+
+    function midiToName(midi) {
+      return NOTE_NAMES[((midi % 12) + 12) % 12] + Math.floor(midi / 12 - 1);
+    }
+
+    function freqToNote(freq) {
+      const midi = Math.round(69 + 12 * Math.log2(freq / 440));
+      const name = midiToName(midi);
+      const solfege = SOLFEGE[((midi % 12) + 12) % 12];
+      const cents = Math.round(1200 * Math.log2(freq / midiToFreq(midi)));
+      return { midi, name, solfege, cents };
+    }
+
+    function formatCents(cents) {
+      if (!isFinite(cents)) return '—';
+      if (Math.abs(cents) <= 3) return '接近标准音';
+      return (cents > 0 ? '+' : '') + cents + ' 音分';
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, virtualWidth, canvasHeight);
+      drawBackground();
+      drawMarkers();
+      drawMelody();
+      drawPitchAxisOverlay();
+      drawAxisCaption();
+    }
+
+    function drawBackground() {
+      const grd = ctx.createLinearGradient(0, 0, 0, canvasHeight);
+      grd.addColorStop(0, 'rgba(255, 237, 213, .07)');
+      grd.addColorStop(.45, 'rgba(56, 189, 248, .035)');
+      grd.addColorStop(1, 'rgba(59, 130, 246, .09)');
+      ctx.fillStyle = grd;
+      ctx.fillRect(0, 0, virtualWidth, canvasHeight);
+
+      ctx.save();
+      ctx.strokeStyle = 'rgba(148, 163, 184, .15)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < virtualWidth; x += 95) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvasHeight); ctx.stroke();
+      }
+      for (let y = 40; y < canvasHeight - 20; y += 54) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(virtualWidth, y); ctx.stroke();
+      }
+      drawPitchGuides();
+      ctx.restore();
+    }
+
+    function getPitchScaleInfo() {
+      const minFreq = Math.min(Number(controls.minFreq.value), Number(controls.maxFreq.value) - 20);
+      const maxFreq = Math.max(Number(controls.maxFreq.value), minFreq + 20);
+      const minMidi = Math.ceil(69 + 12 * Math.log2(minFreq / 440));
+      const maxMidi = Math.floor(69 + 12 * Math.log2(maxFreq / 440));
+      const naturalSet = new Set([0, 2, 4, 5, 7, 9, 11]);
+      const viewportLeft = scroller.scrollLeft || 0;
+      const axisX = clamp(viewportLeft + 12, 12, Math.max(12, virtualWidth - 150));
+      const axisTop = 18;
+      const axisBottom = canvasHeight - 38;
+      const axisLineX = axisX + 74;
+      const labelX = axisX + 8;
+      const hzX = axisX + 82;
+      const rangeSemis = Math.max(1, maxMidi - minMidi);
+      const pitchArea = canvasHeight - 34 - 48;
+      const avgSemiPx = pitchArea / rangeSemis;
+      return { minFreq, maxFreq, minMidi, maxMidi, naturalSet, viewportLeft, axisX, axisTop, axisBottom, axisLineX, labelX, hzX, avgSemiPx };
+    }
+
+    function drawPitchGuides() {
+      const { minFreq, maxFreq, minMidi, maxMidi, naturalSet } = getPitchScaleInfo();
+      ctx.save();
+
+      // 完整十二平均律半音线：每个半音一条，位置使用 log2 频率映射，和旋律线 Y 轴完全一致。
+      for (let midi = minMidi; midi <= maxMidi; midi++) {
+        const pc = ((midi % 12) + 12) % 12;
+        const freq = midiToFreq(midi);
+        const y = freqToY(freq, minFreq, maxFreq);
+        const isC = pc === 0;
+        const isA4 = midi === 69;
+        const isNatural = naturalSet.has(pc);
+
+        ctx.setLineDash(isNatural ? [] : [2, 7]);
+        ctx.lineWidth = isC || isA4 ? 1.35 : isNatural ? 0.85 : 0.55;
+        ctx.strokeStyle = isA4
+          ? 'rgba(56, 189, 248, .42)'
+          : isC
+            ? 'rgba(226, 232, 240, .28)'
+            : isNatural
+              ? 'rgba(148, 163, 184, .17)'
+              : 'rgba(148, 163, 184, .075)';
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(virtualWidth, y);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function drawPitchAxisOverlay() {
+      const { minFreq, maxFreq, minMidi, maxMidi, naturalSet, viewportLeft, axisX, axisTop, axisBottom, axisLineX, labelX, hzX, avgSemiPx } = getPitchScaleInfo();
+      const axisW = 132;
+      ctx.save();
+
+      // 半透明“贴边”刻度面板。由于 canvas 会横向滚动，面板按 scrollLeft 重绘，视觉上接近固定 Y 轴。
+      ctx.fillStyle = 'rgba(2, 6, 23, .70)';
+      roundRect(ctx, axisX - 8, axisTop, axisW, axisBottom - axisTop, 16);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(148, 163, 184, .22)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Y 轴主线与刻度。
+      ctx.strokeStyle = 'rgba(226, 232, 240, .35)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(axisLineX, axisTop + 18);
+      ctx.lineTo(axisLineX, axisBottom - 8);
+      ctx.stroke();
+
+      ctx.font = 'bold 11px ui-sans-serif, system-ui, sans-serif';
+      ctx.fillStyle = 'rgba(226, 232, 240, .82)';
+      ctx.fillText('音高刻度', labelX, axisTop + 18);
+      ctx.font = '10px ui-sans-serif, system-ui, sans-serif';
+      ctx.fillStyle = 'rgba(148, 163, 184, .82)';
+      ctx.fillText('十二平均律 / Hz', labelX, axisTop + 33);
+
+      let lastLabelY = -999;
+      for (let midi = minMidi; midi <= maxMidi; midi++) {
+        const pc = ((midi % 12) + 12) % 12;
+        const freq = midiToFreq(midi);
+        const y = freqToY(freq, minFreq, maxFreq);
+        const isC = pc === 0;
+        const isA4 = midi === 69;
+        const isNatural = naturalSet.has(pc);
+        const isSharp = !isNatural;
+
+        const tickLen = isC || isA4 ? 17 : isNatural ? 12 : 7;
+        ctx.strokeStyle = isC || isA4 ? 'rgba(226, 232, 240, .72)' : isNatural ? 'rgba(203, 213, 225, .45)' : 'rgba(148, 163, 184, .25)';
+        ctx.lineWidth = isC || isA4 ? 1.4 : 1;
+        ctx.beginPath();
+        ctx.moveTo(axisLineX - tickLen, y);
+        ctx.lineTo(axisLineX + 4, y);
+        ctx.stroke();
+
+        // 标注策略：宽音域下标 C 与 A4；中等音域标自然音；窄音域标全部半音。
+        let shouldLabel = false;
+        if (isC || isA4) shouldLabel = true;
+        if (avgSemiPx >= 13 && isNatural) shouldLabel = true;
+        if (avgSemiPx >= 20) shouldLabel = true;
+        if (avgSemiPx < 13 && isNatural && Math.abs(y - lastLabelY) >= 26) shouldLabel = true;
+
+        if (shouldLabel && y > axisTop + 44 && y < axisBottom - 8 && Math.abs(y - lastLabelY) >= 13) {
+          const name = midiToName(midi);
+          ctx.font = isC || isA4 ? 'bold 11px ui-sans-serif, system-ui, sans-serif' : '10px ui-sans-serif, system-ui, sans-serif';
+          ctx.fillStyle = isA4 ? 'rgba(125, 211, 252, .95)' : isSharp ? 'rgba(148, 163, 184, .72)' : 'rgba(226, 232, 240, .86)';
+          ctx.fillText(name, labelX, y + 4);
+          ctx.fillStyle = isA4 ? 'rgba(125, 211, 252, .82)' : 'rgba(148, 163, 184, .72)';
+          ctx.font = '9px ui-sans-serif, system-ui, sans-serif';
+          const hzText = freq >= 1000 ? (freq / 1000).toFixed(2) + 'k' : Math.round(freq) + 'Hz';
+          ctx.fillText(hzText, hzX, y + 4);
+          lastLabelY = y;
+        }
+      }
+
+      // 标出当前最新音高在 Y 轴上的位置，便于核对线条与刻度是否对应。
+      const last = points.length ? points[points.length - 1] : null;
+      if (last && isFinite(last.pitch)) {
+        const note = freqToNote(last.pitch);
+        const y = freqToY(last.pitch, minFreq, maxFreq);
+        ctx.strokeStyle = 'rgba(56, 189, 248, .75)';
+        ctx.lineWidth = 1.6;
+        ctx.setLineDash([6, 5]);
+        ctx.beginPath();
+        ctx.moveTo(axisLineX + 8, y);
+        ctx.lineTo(Math.min(virtualWidth, viewportLeft + scroller.clientWidth), y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        const tag = note.name + ' ' + Math.round(last.pitch) + 'Hz';
+        ctx.font = 'bold 11px ui-sans-serif, system-ui, sans-serif';
+        const tagW = Math.max(82, ctx.measureText(tag).width + 18);
+        const tagY = clamp(y - 14, axisTop + 38, axisBottom - 28);
+        ctx.fillStyle = 'rgba(8, 47, 73, .94)';
+        roundRect(ctx, axisLineX + 10, tagY, tagW, 25, 12);
+        ctx.fill();
+        ctx.fillStyle = '#bae6fd';
+        ctx.fillText(tag, axisLineX + 19, tagY + 17);
+      }
+
+      ctx.restore();
+    }
+
+    function drawMarkers() {
+      ctx.save();
+      for (const m of restMarkers) {
+        ctx.strokeStyle = 'rgba(203, 213, 225, .28)';
+        ctx.setLineDash([4, 8]);
+        ctx.beginPath(); ctx.moveTo(m.x, 32); ctx.lineTo(m.x, canvasHeight - 36); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = 'rgba(15, 23, 42, .8)';
+        roundRect(ctx, m.x + 8, canvasHeight - 74, 86, 28, 12);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(226, 232, 240, .9)';
+        ctx.font = '12px ui-sans-serif, system-ui, sans-serif';
+        ctx.fillText(m.label, m.x + 16, canvasHeight - 55);
+      }
+      for (const m of phraseMarkers) {
+        ctx.strokeStyle = 'rgba(251, 191, 36, .86)';
+        ctx.setLineDash([8, 7]);
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(m.x, 18); ctx.lineTo(m.x, canvasHeight - 18); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = 'rgba(251, 191, 36, .16)';
+        roundRect(ctx, m.x + 10, 20, 74, 30, 14);
+        ctx.fill();
+        ctx.fillStyle = '#fde68a';
+        ctx.font = 'bold 13px ui-sans-serif, system-ui, sans-serif';
+        ctx.fillText(m.label, m.x + 20, 40);
+      }
+      ctx.restore();
+    }
+
+    function drawMelody() {
+      if (!points.length) return;
+      ctx.save();
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      for (let i = 1; i < points.length; i++) {
+        const a = points[i - 1];
+        const b = points[i];
+        if (b.breakBefore || b.t - a.t > 0.24) continue;
+        ctx.globalAlpha = Math.min(a.alpha, b.alpha);
+        ctx.strokeStyle = b.color;
+        ctx.lineWidth = (a.width + b.width) / 2;
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        const midX = (a.x + b.x) / 2;
+        ctx.bezierCurveTo(midX, a.y, midX, b.y, b.x, b.y);
+        ctx.stroke();
+      }
+      if (controls.dots.checked) {
+        for (let i = 0; i < points.length; i += 2) {
+          const p = points[i];
+          ctx.globalAlpha = Math.min(.92, p.alpha + .05);
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, Math.max(1.7, p.width * .36), 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      ctx.restore();
+    }
+
+    function drawAxisCaption() {
+      ctx.save();
+      ctx.fillStyle = 'rgba(226, 232, 240, .82)';
+      ctx.font = 'bold 13px ui-sans-serif, system-ui, sans-serif';
+      ctx.fillText('高音 / 暖色', virtualWidth - 112, 28);
+      ctx.fillText('低音 / 冷色', virtualWidth - 112, canvasHeight - 18);
+      ctx.fillStyle = 'rgba(148, 163, 184, .78)';
+      ctx.font = '12px ui-sans-serif, system-ui, sans-serif';
+      ctx.fillText('时间 →', 50, canvasHeight - 18);
+      ctx.restore();
+    }
+
+    function roundRect(ctx, x, y, w, h, r) {
+      const rr = Math.min(r, w / 2, h / 2);
+      ctx.beginPath();
+      ctx.moveTo(x + rr, y);
+      ctx.arcTo(x + w, y, x + w, y + h, rr);
+      ctx.arcTo(x + w, y + h, x, y + h, rr);
+      ctx.arcTo(x, y + h, x, y, rr);
+      ctx.arcTo(x, y, x + w, y, rr);
+      ctx.closePath();
+    }
+
+    function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>'"]/g, (ch) => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+    }
+
+    clearBtn.addEventListener('click', () => {
+      resetAnalysisState();
+      setStatus('<span class="pill">画布已清空</span>可重新演唱、演奏或播放音频。');
+    });
+
+    saveBtn.addEventListener('click', () => {
+      draw();
+      const link = document.createElement('a');
+      const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+      link.download = 'melody-line-' + stamp + '.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      setStatus('<span class="pill">已导出图片</span>图片可用于课件、课堂记录、学生学习单或教学反思。');
+    });
+
+    startMicBtn.addEventListener('click', startMic);
+    stopMicBtn.addEventListener('click', stopMic);
+
+    resetAnalysisState();
+  </script>
+</body>
+</html>
