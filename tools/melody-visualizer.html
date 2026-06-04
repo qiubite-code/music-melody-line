@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>音乐教学实时音频旋律线条可视化系统｜手机浏览操作版</title>
+  <title>音乐教学实时音频旋律线条可视化系统</title>
   
   <style>
     :root {
@@ -2198,6 +2198,13 @@
   .canvas-wrap canvas,#canvas{min-width:980px!important;}
 }
 
+
+/* ===== V7.0 音高音律分析升级：Pitchfinder式检测 + 课堂评价报告 ===== */
+.analysis-panel-v7{margin-top:14px;padding:16px;border-radius:22px;background:linear-gradient(180deg,rgba(8,20,38,.94),rgba(9,18,32,.92));border:1px solid rgba(162,191,217,.16);box-shadow:0 16px 50px rgba(0,0,0,.22)}
+.analysis-head-v7{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:12px;border-bottom:1px solid rgba(162,191,217,.12);padding-bottom:10px}
+.analysis-head-v7 h2{margin:0;font-size:24px}.analysis-head-v7 p{margin:4px 0 0;color:#9fb4cb;line-height:1.6;font-size:13px}.analysis-actions-v7{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.analysis-actions-v7 button{min-height:42px;border-radius:999px}.analysis-grid-v7{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:12px}.analysis-card-v7{padding:12px;border-radius:18px;background:rgba(15,31,55,.82);border:1px solid rgba(162,191,217,.13);min-height:92px}.analysis-card-v7 span{display:block;color:#9fb4cb;font-size:12px;margin-bottom:6px}.analysis-card-v7 strong{display:block;font-size:clamp(18px,2.1vw,27px);line-height:1.12}.analysis-card-v7 small{display:block;margin-top:6px;color:#b9d3eb;font-size:12px;line-height:1.45}.analysis-body-v7{display:grid;grid-template-columns:1.08fr .92fr;gap:12px}.analysis-box-v7{min-height:160px;padding:12px;border-radius:18px;background:rgba(5,14,28,.72);border:1px solid rgba(162,191,217,.12);color:#dbeafe;line-height:1.75;font-size:14px;overflow:auto}.analysis-box-v7 h3{margin:0 0 8px;color:#f8fafc;font-size:16px}.analysis-report-v7 ul{margin:6px 0 0 18px;padding:0}.analysis-report-v7 li{margin:3px 0}.tone-bars-v7{display:grid;gap:7px}.tone-row-v7{display:grid;grid-template-columns:54px minmax(0,1fr) 42px;align-items:center;gap:8px;font-size:12px;color:#cbd5e1}.tone-row-v7 b{font-size:13px}.tone-bar-v7{height:10px;border-radius:999px;background:rgba(148,163,184,.18);overflow:hidden}.tone-bar-v7 i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#22c55e)}.backend-tip-v7{margin-top:10px;padding:10px 12px;border-radius:16px;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.18);color:#bae6fd;font-size:13px;line-height:1.65}.select-box .inline-number-v7{display:flex;align-items:center;gap:6px}.select-box .inline-number-v7 input{width:78px;border:1px solid rgba(148,163,184,.22);border-radius:12px;background:rgba(2,6,23,.62);color:#e5e7eb;padding:8px 10px;font-weight:800}.pitch-good-v7{color:#86efac}.pitch-warn-v7{color:#facc15}.pitch-danger-v7{color:#fda4af}@media(max-width:980px){.analysis-grid-v7{grid-template-columns:repeat(2,minmax(0,1fr))}.analysis-body-v7{grid-template-columns:1fr}.analysis-head-v7{align-items:flex-start;flex-direction:column}.analysis-actions-v7{justify-content:flex-start}}@media(max-width:560px){.analysis-grid-v7{grid-template-columns:1fr}.analysis-panel-v7{padding:12px}.tone-row-v7{grid-template-columns:46px minmax(0,1fr) 38px}}
+
 </style>
 <!-- V4.4: restored from V4.2 visualizer with detailed operation manual retained. -->
 </head>
@@ -2212,12 +2219,13 @@
           </div>
           
         </div>
-        <p class="subtitle">操作流程：开始录音 / 上传音频 → 观察旋律线 → 回放定位 → 生成谱例。</p>
+        <p class="subtitle">操作流程：开始录音 / 上传音频 → 观察旋律线 → 音高音准分析 → 调式音律判断 → 生成谱例。</p>
         <div class="feature-chips" aria-label="系统特点">
           <span class="feature-chip">◉ 实时拾音</span>
           <span class="feature-chip">◈ 音频上传</span>
           <span class="feature-chip">◌ 旋律观察</span>
           <span class="feature-chip">♪ 谱例生成</span>
+          <span class="feature-chip">⌁ 音准报告</span>
           <span class="feature-chip">◫ 图片导出</span>
           <span class="feature-chip">✦ 在线手册</span>
         </div>
@@ -2297,6 +2305,9 @@
               <label class="range"><strong>最低音 <span id="minFreqValue">45</span> Hz</strong><input id="minFreq" type="range" min="25" max="300" value="45" step="5"><small class="param-help">低于此值不重点识别。男声可低，童声/女声可高。</small></label>
               <label class="range"><strong>最高音 <span id="maxFreqValue">2600</span> Hz</strong><input id="maxFreq" type="range" min="500" max="4200" value="2600" step="50"><small class="param-help">高于此值不重点识别。高音乐器调高，噪声多调低。</small></label>
               <label class="range"><strong>乐句停顿 <span id="phraseValue">0.70</span> s</strong><input id="phraseGap" type="range" min="0.25" max="1.8" value="0.70" step="0.05"><small class="param-help">超过该停顿判为新乐句。分句太碎调高，不分句调低。</small></label>
+              <label class="select-box"><strong>音高算法</strong><select id="pitchAlgorithm"><option value="hybrid" selected>Hybrid：YIN + MPM + ACF</option><option value="yin">YIN：清唱/单音</option><option value="mpm">MPM：稳定长音</option><option value="acf">ACF：乐器单音</option></select><small class="param-help">内置 Pitchfinder 思路，纯前端运行；不同算法适合不同声音。</small></label>
+              <label class="select-box"><strong>A4 校准</strong><span class="inline-number-v7"><input id="tuningA4" type="number" min="415" max="466" value="440" step="0.1"><span>Hz</span></span><small class="param-help">默认 440Hz；管弦乐或特定课堂可设 442Hz。</small></label>
+              <label class="range"><strong>音准容差 <span id="pitchToleranceValue">25</span> 音分</strong><input id="pitchTolerance" type="range" min="5" max="60" value="25" step="1"><small class="param-help">用于统计“唱准比例”。初中课堂建议 20—30 音分。</small></label>
             </div>
           </div>
 
@@ -2328,6 +2339,8 @@
               </select></label>
               <label class="select-box"><strong>升降号类型</strong><select id="keyAccidentalSystem"><option value="auto">自动匹配常用调</option><option value="sharp">升号调</option><option value="flat">降号调</option><option value="none">无升降</option></select></label>
               <label class="select-box"><strong>调式</strong><select id="modeType"><option value="major">大调</option><option value="minor">小调</option><option value="ionian">Ionian 伊奥尼亚</option><option value="dorian">Dorian 多利亚</option><option value="phrygian">Phrygian 弗里几亚</option><option value="lydian">Lydian 利底亚</option><option value="mixolydian">Mixolydian 混合利底亚</option><option value="aeolian">Aeolian 自然小调</option><option value="locrian">Locrian 洛克里亚</option></select></label>
+              <label class="select-box"><strong>音律 / 调式分析</strong><select id="scaleAnalysisMode"><option value="auto" selected>自动：十二平均律 + 五声调式</option><option value="equal">十二平均律音准</option><option value="pentatonic">中国五声音阶</option><option value="major_minor">大小调倾向</option></select></label>
+              <label class="select-box"><strong>后端扩展目标</strong><select id="analysisBackend"><option value="frontend" selected>前端实时：Pitchfinder式检测</option><option value="essentia">上传分析：Essentia Melodia</option><option value="basicpitch">转写：Basic Pitch MIDI</option><option value="crepe">清唱精测：CREPE / pYIN</option></select></label>
               <label class="select-box"><strong>拍号</strong><select id="timeSigPreset"><option value="2/4">2/4</option><option value="3/4">3/4</option><option value="4/4" selected>4/4</option><option value="5/4">5/4</option><option value="6/8">6/8</option><option value="7/8">7/8</option><option value="custom">自定义</option></select></label>
               <label class="select-box"><strong>自定义拍号</strong><span class="number-pair"><input id="timeTop" type="number" min="1" max="16" value="4" aria-label="拍号分子"><span>/</span><input id="timeBottom" type="number" min="1" max="32" value="4" aria-label="拍号分母"></span></label>
               <label class="select-box"><strong>速度术语</strong><select id="tempoText"><option value="50">Largo 广板</option><option value="66">Adagio 柔板</option><option value="76">Andante 行板</option><option value="92" selected>Moderato 中板</option><option value="120">Allegro 快板</option><option value="144">Vivace 活泼</option><option value="168">Presto 急板</option><option value="custom">自定义</option></select></label>
@@ -2408,6 +2421,39 @@
     </section>
 
 
+    <section class="analysis-panel-v7" aria-label="音高音律分析报告">
+      <div class="analysis-head-v7">
+        <div>
+          <p class="eyebrow">分析中心</p>
+          <h2>音高 · 音准 · 音律 · 调式报告</h2>
+          <p>面向课堂演唱、视唱练耳、非遗唱腔观察：从旋律线中统计音域、音准偏差、五声调式倾向与旋律走向。</p>
+        </div>
+        <div class="analysis-actions-v7">
+          <button id="runPitchReport" class="primary">⌁ 生成音高报告</button>
+          <button id="exportPitchCsv" class="ghost">⇩ 导出音高 CSV</button>
+          <button id="exportPitchReport" class="ghost">⇩ 导出报告 JSON</button>
+        </div>
+      </div>
+      <div class="analysis-grid-v7">
+        <div class="analysis-card-v7"><span>音域范围</span><strong id="rangeMetricV7">—</strong><small id="rangeDetailV7">等待录音或上传音频。</small></div>
+        <div class="analysis-card-v7"><span>平均音准偏差</span><strong id="centsMetricV7">—</strong><small id="centsDetailV7">以当前 A4 校准计算。</small></div>
+        <div class="analysis-card-v7"><span>唱准比例</span><strong id="accuracyMetricV7">—</strong><small id="accuracyDetailV7">按“音准容差”统计。</small></div>
+        <div class="analysis-card-v7"><span>调式倾向</span><strong id="modeMetricV7">—</strong><small id="modeDetailV7">支持五声调式初步判断。</small></div>
+      </div>
+      <div class="analysis-body-v7">
+        <div class="analysis-box-v7 analysis-report-v7">
+          <h3>课堂分析建议</h3>
+          <div id="pitchReportTextV7">请先录音、上传音频，或在多段列表中选择一条旋律线，再点击“生成音高报告”。</div>
+        </div>
+        <div class="analysis-box-v7">
+          <h3>音级分布</h3>
+          <div id="toneBarsV7" class="tone-bars-v7"><p style="color:#9fb4cb;margin:0;">暂无音高数据。</p></div>
+          <div id="backendTipV7" class="backend-tip-v7">当前为纯前端实时分析。若选择后端扩展目标，可参考项目 /backend 文件夹接入 Essentia Melodia、CREPE/pYIN 或 Basic Pitch。</div>
+        </div>
+      </div>
+    </section>
+
+
     <section class="panel multi-audio-panel" aria-label="多段音频旋律线管理">
       <div class="multi-audio-head">
         <div><p class="eyebrow">多段对比</p><h2>导入音频 / 录音旋律线</h2></div>
@@ -2482,14 +2528,14 @@
       <div class="manual-body">
 <div class="manual-cover">
 <h3>实时音频旋律线条可视化系统</h3>
-<p class="manual-note"><strong>操作手册｜教师版 + 学生版<br>作者：郑壹健</strong></p>
+<p class="manual-note"><strong>操作手册｜教师版 + 学生版</strong></p>
 <p>适用于中小学 / 初中音乐课堂、演唱示范、乐句分析、音准反馈、简谱与五线谱转写、课堂展示评价。系统采用纯前端网页运行，支持麦克风录音、上传 mp3/WAV、本地回放、播放光标同步、简谱/五线谱生成、调号/拍号/速度设置。</p>
 <table>
 <thead><tr><th>项目</th><th>说明</th></tr></thead>
 <tbody>
 <tr><td>适用场景</td><td>中小学 / 初中音乐课堂、演唱示范、乐句分析、课堂即时反馈、学生作品评价。</td></tr>
 <tr><td>系统形态</td><td>纯前端网页；支持本地运行、电脑/平板/手机/教室大屏访问。</td></tr>
-<tr><td>核心功能</td><td>录音、暂停、继续、结束录音；上传音频；播放器拖动；播放光标；旋律线；简谱/五线谱；保存图片。</td></tr>
+<tr><td>核心功能</td><td>录音、暂停、继续、结束录音；上传音频；播放器拖动；播放光标；旋律线；音高/音准/音律分析；简谱/五线谱；保存图片。</td></tr>
 <tr><td>建议设备</td><td>电脑或平板 + Chrome/Edge 浏览器；教室大屏；外接 USB 麦克风或领夹麦效果更稳定。</td></tr>
 </tbody>
 </table>
@@ -2508,7 +2554,7 @@
 <a href="#m11">十一、常见问题与排查</a>
 </div></section>
 <section id="m1"><h3>一、系统认识：它能帮助学生看见什么</h3>
-<p>本系统不是专业录音棚软件，而是面向音乐课堂的“声音—图像—谱例”学习工具。它把学生演唱、教师范唱或上传音频转化为旋律线，让学生直观看到音高、力度、节奏、休止、乐句与谱例之间的关系。</p>
+<p>本系统不是专业录音棚软件，而是面向音乐课堂的“声音—图像—分析—谱例”学习工具。它把学生演唱、教师范唱或上传音频转化为旋律线，让学生直观看到音高、力度、节奏、休止、乐句与谱例之间的关系。</p>
 <table>
 <thead><tr><th>音乐元素</th><th>系统表现</th><th>课堂理解重点</th></tr></thead>
 <tbody>
@@ -2714,6 +2760,11 @@
       minFreq: $('minFreq'),
       maxFreq: $('maxFreq'),
       phraseGap: $('phraseGap'),
+      pitchAlgorithm: $('pitchAlgorithm'),
+      tuningA4: $('tuningA4'),
+      pitchTolerance: $('pitchTolerance'),
+      scaleAnalysisMode: $('scaleAnalysisMode'),
+      analysisBackend: $('analysisBackend'),
       dots: $('dots'),
       steadyMode: $('steadyMode'),
       pitchLock: $('pitchLock'),
@@ -2816,7 +2867,7 @@
     const SOLFEGE = ['Do', 'Di', 'Re', 'Ri', 'Mi', 'Fa', 'Fi', 'Sol', 'Si', 'La', 'Li', 'Ti'];
     // 钢琴十二平均律标准：A4 = 440Hz；C4 = 60号 MIDI ≈ 261.63Hz。
     // 后续音名、Y轴刻度、简谱/五线谱转写均以此为唯一标准，避免 C4 被显示成 C3。
-    const PIANO_A4_HZ = 440;
+    let PIANO_A4_HZ = 440;
     const PIANO_A4_MIDI = 69;
     const PIANO_C4_MIDI = 60;
     const PIANO_C4_HZ = 261.6255653005986;
@@ -3193,8 +3244,70 @@
         if (analyzeAllSegmentsBtn) analyzeAllSegmentsBtn.textContent = '⌁ 补全旋律线';
       }
     }
+
+    async function analyzeAudioSegmentWithBackend(seg, backendMode){
+      if (!seg) return [];
+      let fileForUpload = seg.file || null;
+      if (!fileForUpload && seg.url) {
+        const res = await fetch(seg.url);
+        const blob = await res.blob();
+        fileForUpload = new File([blob], (seg.name || 'audio') + '.wav', { type: blob.type || 'audio/wav' });
+      }
+      if (!fileForUpload) return [];
+      const form = new FormData();
+      form.append('file', fileForUpload, fileForUpload.name || seg.name || 'audio.wav');
+      form.append('engine', backendMode === 'essentia' ? 'essentia' : 'pyin');
+      const res = await fetch('http://127.0.0.1:5050/api/analyze-melody', { method: 'POST', body: form });
+      if (!res.ok) throw new Error('backend status ' + res.status);
+      const data = await res.json();
+      const backendPoints = Array.isArray(data.points) ? data.points : [];
+      const pxPerSec = Number(controls.speed.value || 95);
+      const displayRange = getDisplayPitchRange();
+      const trace = [];
+      let wasSilent = true;
+      let lastT = 0;
+      backendPoints.forEach((pt) => {
+        const t = Number(pt.time);
+        const frequency = Number(pt.frequency || pt.pitch || pt.f0);
+        const confidence = Number(pt.confidence || pt.probability || 0.75);
+        if (!Number.isFinite(t) || !Number.isFinite(frequency) || frequency <= 0) return;
+        const displayPitch = controls.pitchSnap && controls.pitchSnap.checked ? midiToFreq(Math.round(freqToMidiFloat(frequency))) : frequency;
+        const x = 48 + t * pxPerSec;
+        const y = freqToY(displayPitch, displayRange.minFreq, displayRange.maxFreq);
+        const rms = Math.max(0.018, Math.min(0.18, confidence * 0.11));
+        const ampNorm = clamp(confidence, 0, 1);
+        trace.push({
+          t, x, y,
+          pitch: frequency,
+          displayPitch,
+          rms,
+          width: 1.6 + ampNorm * 5.8,
+          alpha: 0.38 + ampNorm * 0.55,
+          color: pitchToColor(displayPitch, displayRange.minFreq, displayRange.maxFreq),
+          note: freqToNote(frequency),
+          breakBefore: wasSilent || (t - lastT > 0.18),
+          backend: data.engine || backendMode
+        });
+        wasSilent = false;
+        lastT = t;
+      });
+      if (trace.length && typeof setStatus === 'function') setStatus('<span class="pill">后端分析</span>已使用 ' + escapeHtml(data.engine || backendMode) + ' 返回旋律线；如需转谱，可继续生成简谱/五线谱。');
+      return trace;
+    }
+
     async function analyzeAudioSegmentToTrace(seg){
       await ensureAudioContext();
+      const backendModeEl = $('analysisBackend');
+      const backendMode = backendModeEl ? backendModeEl.value : 'frontend';
+      if (backendMode && backendMode !== 'frontend') {
+        try {
+          const backendTrace = await analyzeAudioSegmentWithBackend(seg, backendMode);
+          if (backendTrace && backendTrace.length) return backendTrace;
+        } catch (backendErr) {
+          console.warn('Backend melody analysis failed, fallback to frontend:', backendErr);
+          if (typeof setStatus === 'function') setStatus('<span class="pill">后端未连接</span>已退回前端离线旋律分析。若要使用 Essentia / pYIN / Basic Pitch，请先运行 backend/app.py。');
+        }
+      }
       let arr;
       if (seg.file && seg.file.arrayBuffer) arr = await seg.file.arrayBuffer();
       else {
@@ -3437,6 +3550,11 @@
       $('minFreqValue').textContent = controls.minFreq.value;
       $('maxFreqValue').textContent = controls.maxFreq.value;
       $('phraseValue').textContent = Number(controls.phraseGap.value).toFixed(2);
+      if ($('pitchToleranceValue') && controls.pitchTolerance) $('pitchToleranceValue').textContent = Math.round(Number(controls.pitchTolerance.value || 25));
+      if (controls.tuningA4) {
+        const nextA4 = clamp(Number(controls.tuningA4.value || 440), 415, 466);
+        if (isFinite(nextA4) && Math.abs(nextA4 - PIANO_A4_HZ) > 0.0001) PIANO_A4_HZ = nextA4;
+      }
       if ($('bpmValue') && controls.bpm) $('bpmValue').textContent = Math.round(Number(controls.bpm.value || 92));
       if ($('metroVolumeValue') && controls.metroVolume) $('metroVolumeValue').textContent = Math.round(Number(controls.metroVolume.value || 0.6) * 100) + '%';
     }
@@ -4496,6 +4614,11 @@
     }
 
     function detectPitch(buf, sampleRate, minFreq, maxFreq) {
+      const algEl = $('pitchAlgorithm');
+      const algorithm = algEl ? algEl.value : 'hybrid';
+      if (algorithm === 'yin') return detectPitchYINFast(buf.length > 8192 ? buf.subarray(buf.length - 8192) : buf, sampleRate, minFreq, maxFreq);
+      if (algorithm === 'mpm') return detectPitchMPM(buf, sampleRate, minFreq, maxFreq);
+      if (algorithm === 'acf') return detectPitchACF(buf, sampleRate, minFreq, maxFreq);
       // 课堂稳定版：先用 YIN 找真实基频，再用归一化自相关校正八度。
       // 目标是避免截图中的 4kHz 尖峰，同时保留一到八度、超八度真实跳进。
       if (!buf || !buf.length || !sampleRate) return null;
@@ -6378,6 +6501,174 @@ function draw() {
     stopMicRecorder = function(){ var r=_stopMicRecorder.apply(this, arguments); setTimeout(freezeLatestRecording, 450); setTimeout(freezeLatestRecording, 900); return r; };
   }
   window.addEventListener('DOMContentLoaded', function(){ setTimeout(refreshSegmentFreezeAll, 600); });
+})();
+</script>
+
+
+<script id="v70-pitch-analysis-upgrade">
+(function(){
+  function byId(id){ return document.getElementById(id); }
+  function safeNum(v, fallback){ v = Number(v); return Number.isFinite(v) ? v : fallback; }
+  function pct(v){ return Math.round(v * 100) + '%'; }
+  function fmt(v, d){ return Number.isFinite(v) ? Number(v).toFixed(d || 0) : '—'; }
+  function mean(arr){ return arr.length ? arr.reduce((a,b)=>a+b,0) / arr.length : NaN; }
+  function median(arr){ if(!arr.length) return NaN; const a=arr.slice().sort((x,y)=>x-y); const m=Math.floor(a.length/2); return a.length%2 ? a[m] : (a[m-1]+a[m])/2; }
+  function std(arr){ if(arr.length<2) return 0; const m=mean(arr); return Math.sqrt(mean(arr.map(x=>(x-m)*(x-m)))); }
+  function getUsableTraceV7(){
+    try{
+      if (Array.isArray(points) && points.filter(p=>p && Number.isFinite(p.pitch)).length >= 3) return points.filter(p=>p && Number.isFinite(p.pitch));
+      if (typeof currentSegmentId !== 'undefined' && Array.isArray(audioSegments)) {
+        const seg = audioSegments.find(s=>s.id===currentSegmentId);
+        if(seg && Array.isArray(seg.trace) && seg.trace.filter(p=>Number.isFinite(p.pitch)).length>=3) return seg.trace.filter(p=>Number.isFinite(p.pitch));
+      }
+      if (Array.isArray(audioSegments)) {
+        const visible = [];
+        audioSegments.forEach(seg=>{ if(seg.visible !== false && Array.isArray(seg.trace)) seg.trace.forEach(p=>{ if(p && Number.isFinite(p.pitch)) visible.push(p); }); });
+        if(visible.length>=3) return visible;
+      }
+    }catch(e){}
+    return [];
+  }
+  function classifyContourV7(midis){
+    if(midis.length < 6) return {label:'样本不足', detail:'需要更长旋律线。'};
+    const n = midis.length;
+    const first = median(midis.slice(0, Math.max(2, Math.floor(n/3))));
+    const last = median(midis.slice(Math.floor(n*2/3)));
+    let changes = 0, prev = 0;
+    for(let i=1;i<midis.length;i++){
+      const d = midis[i] - midis[i-1];
+      const dir = Math.abs(d) < .18 ? 0 : (d>0?1:-1);
+      if(dir && prev && dir !== prev) changes++;
+      if(dir) prev = dir;
+    }
+    const delta = last - first;
+    if(Math.abs(delta) < 1.2 && changes >= 3) return {label:'波浪式', detail:'上下起伏较多，适合分析乐句张力。'};
+    if(delta >= 1.2) return {label:'整体上行', detail:'结尾音区高于开头，可引导学生感受情绪推进。'};
+    if(delta <= -1.2) return {label:'整体下行', detail:'结尾音区低于开头，可引导学生感受收束感。'};
+    return {label:'相对平稳', detail:'音区变化不大，适合分析重复、长音与节奏。'};
+  }
+  const pcNamesV7 = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+  const jianpuNamesV7 = ['1','♯1/♭2','2','♯2/♭3','3','4','♯4/♭5','5','♯5/♭6','6','♯6/♭7','7'];
+  const pentatonicModesV7 = [
+    {name:'宫调式', intervals:[0,2,4,7,9]},
+    {name:'商调式', intervals:[0,2,5,7,10]},
+    {name:'角调式', intervals:[0,3,5,8,10]},
+    {name:'徵调式', intervals:[0,2,5,7,9]},
+    {name:'羽调式', intervals:[0,3,5,7,10]}
+  ];
+  function estimateModeV7(pcCounts, endingPc){
+    let total = pcCounts.reduce((a,b)=>a+b,0) || 1;
+    let best = {score:-Infinity, name:'待判断', tonic:0, coverage:0};
+    for(let tonic=0; tonic<12; tonic++){
+      for(const mode of pentatonicModesV7){
+        const scale = new Set(mode.intervals.map(i=>(tonic+i)%12));
+        let inScale = 0;
+        for(let pc=0;pc<12;pc++) if(scale.has(pc)) inScale += pcCounts[pc];
+        const endBonus = endingPc === tonic ? total * .08 : (scale.has(endingPc) ? total * .03 : 0);
+        const tonicBonus = pcCounts[tonic] * .06;
+        const score = inScale + endBonus + tonicBonus;
+        if(score > best.score) best = {score, name:pcNamesV7[tonic] + ' ' + mode.name, tonic, coverage:inScale/total};
+      }
+    }
+    return best;
+  }
+  function renderBarsV7(pcCounts, keyPc){
+    const host = byId('toneBarsV7'); if(!host) return;
+    const max = Math.max(1, ...pcCounts);
+    const total = pcCounts.reduce((a,b)=>a+b,0) || 1;
+    const order = pcCounts.map((count,pc)=>({pc,count})).sort((a,b)=>b.count-a.count).slice(0,8);
+    host.innerHTML = order.map(({pc,count})=>{
+      const degree = jianpuNamesV7[((pc - keyPc) % 12 + 12) % 12];
+      const w = Math.round(count / max * 100);
+      return `<div class="tone-row-v7"><b>${pcNamesV7[pc]} / ${degree}</b><div class="tone-bar-v7"><i style="width:${w}%"></i></div><span>${Math.round(count/total*100)}%</span></div>`;
+    }).join('') || '<p style="color:#9fb4cb;margin:0;">暂无音高数据。</p>';
+  }
+  function getPitchReportV7(){
+    const trace = getUsableTraceV7().slice().sort((a,b)=>(a.t||0)-(b.t||0));
+    const tolerance = safeNum(byId('pitchTolerance') && byId('pitchTolerance').value, 25);
+    const keyPc = safeNum(byId('keyRoot') && byId('keyRoot').value, 0);
+    const clean = trace.filter(p=>p && Number.isFinite(p.pitch) && p.pitch>0).map(p=>{
+      const midiFloat = typeof freqToMidiFloat === 'function' ? freqToMidiFloat(p.pitch) : (69 + 12*Math.log2(p.pitch/440));
+      const midi = Math.round(midiFloat);
+      const ref = typeof midiToFreq === 'function' ? midiToFreq(midi) : 440*Math.pow(2,(midi-69)/12);
+      const cents = 1200 * Math.log2(p.pitch/ref);
+      const note = typeof midiToName === 'function' ? midiToName(midi) : String(midi);
+      return {t:safeNum(p.t,0), pitch:p.pitch, midi, midiFloat, cents, absCents:Math.abs(cents), note, rms:safeNum(p.rms,0)};
+    });
+    if(clean.length < 3) return null;
+    const freqs = clean.map(d=>d.pitch), midis = clean.map(d=>d.midiFloat), cents = clean.map(d=>d.cents), absCents = clean.map(d=>d.absCents);
+    const min = clean.reduce((a,b)=>b.pitch<a.pitch?b:a, clean[0]);
+    const max = clean.reduce((a,b)=>b.pitch>a.pitch?b:a, clean[0]);
+    const endingPc = ((clean[clean.length-1].midi % 12)+12)%12;
+    const pcCounts = new Array(12).fill(0);
+    clean.forEach(d=>{ pcCounts[((d.midi%12)+12)%12] += 1; });
+    const accurate = clean.filter(d=>d.absCents <= tolerance).length / clean.length;
+    const contour = classifyContourV7(midis);
+    const mode = estimateModeV7(pcCounts, endingPc);
+    let leaps = 0, steps = 0;
+    for(let i=1;i<clean.length;i++){
+      const diff = Math.abs(clean[i].midiFloat - clean[i-1].midiFloat);
+      if(diff >= 3.0) leaps++;
+      if(diff > .25 && diff <= 2.0) steps++;
+    }
+    const dominantPc = pcCounts.map((count,pc)=>({count,pc})).sort((a,b)=>b.count-a.count)[0].pc;
+    const duration = Math.max(0, clean[clean.length-1].t - clean[0].t);
+    return {clean, min, max, meanFreq:mean(freqs), avgCents:mean(cents), avgAbsCents:mean(absCents), centsStd:std(cents), accurate, tolerance, contour, mode, pcCounts, keyPc, dominantPc, duration, leaps, steps};
+  }
+  function updateReportUIV7(report){
+    const set = (id, txt, cls)=>{ const el=byId(id); if(el){ el.textContent=txt; el.className = cls || ''; } };
+    if(!report){
+      set('rangeMetricV7','—'); set('rangeDetailV7','等待有效音高数据。'); set('centsMetricV7','—'); set('centsDetailV7','请先录音或上传音频。'); set('accuracyMetricV7','—'); set('accuracyDetailV7','暂无统计。'); set('modeMetricV7','—'); set('modeDetailV7','暂无判断。');
+      const text = byId('pitchReportTextV7'); if(text) text.innerHTML = '当前没有足够的有效音高点。请先点击“开始录音”演唱，或上传 mp3 / wav 后点击“补全旋律线”。';
+      renderBarsV7(new Array(12).fill(0),0);
+      return;
+    }
+    const rangeText = `${report.min.note} — ${report.max.note}`;
+    const rangeSemi = Math.max(0, Math.round((report.max.midiFloat - report.min.midiFloat)*10)/10);
+    set('rangeMetricV7', rangeText); set('rangeDetailV7', `约 ${rangeSemi} 个半音｜${fmt(report.min.pitch,1)}Hz — ${fmt(report.max.pitch,1)}Hz`);
+    const abs = report.avgAbsCents;
+    const cls = abs <= 15 ? 'pitch-good-v7' : (abs <= 30 ? 'pitch-warn-v7' : 'pitch-danger-v7');
+    set('centsMetricV7', `${fmt(abs,1)} 音分`, cls); set('centsDetailV7', `平均方向：${report.avgCents>=0?'+':''}${fmt(report.avgCents,1)} 音分｜波动 ${fmt(report.centsStd,1)}`);
+    const accCls = report.accurate >= .75 ? 'pitch-good-v7' : (report.accurate >= .52 ? 'pitch-warn-v7' : 'pitch-danger-v7');
+    set('accuracyMetricV7', pct(report.accurate), accCls); set('accuracyDetailV7', `容差 ±${report.tolerance} 音分，样本 ${report.clean.length} 个。`);
+    set('modeMetricV7', report.mode.name); set('modeDetailV7', `五声覆盖率 ${pct(report.mode.coverage)}｜主音级 ${pcNamesV7[report.dominantPc]}。`);
+    renderBarsV7(report.pcCounts, report.keyPc);
+    const text = byId('pitchReportTextV7');
+    if(text){
+      const accAdvice = report.accurate >= .75 ? '音准整体较稳定，可进一步观察咬字、气息与乐句处理。' : (report.accurate >= .52 ? '音准已有基础，但部分音容易偏离，可进行慢速模唱与长音稳定练习。' : '音准偏差较明显，建议先缩小音域，用钢琴/固定音高进行分句跟唱。');
+      const leapAdvice = report.leaps > report.steps * .5 ? '旋律中跳进较多，课堂可重点标出大跳前后的支撑音。' : '旋律以级进或小跳为主，适合引导学生观察线条流动。';
+      text.innerHTML = `<ul><li><strong>旋律走向：</strong>${report.contour.label}，${report.contour.detail}</li><li><strong>音准评价：</strong>${accAdvice}</li><li><strong>调式提示：</strong>系统初步判断为 ${report.mode.name}，可结合结束音、骨干音和教师听辨复核。</li><li><strong>课堂建议：</strong>${leapAdvice}</li><li><strong>研究记录：</strong>可导出 CSV，用于学生前后测、同伴互评或论文中的作品数据分析。</li></ul>`;
+    }
+  }
+  function runReportV7(){ const report = getPitchReportV7(); window.__lastPitchReportV7 = report; updateReportUIV7(report); if(report && typeof setStatus === 'function') setStatus('<span class="pill">音高报告</span>已生成音域、音准、音级分布与调式倾向分析。'); return report; }
+  function downloadTextV7(filename, content, type){ const blob = new Blob([content], {type:type||'text/plain;charset=utf-8'}); const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url), 1500); }
+  function exportCsvV7(){
+    const report = window.__lastPitchReportV7 || runReportV7(); if(!report) return;
+    const rows = ['time_sec,pitch_hz,midi,note,cents,rms'];
+    report.clean.forEach(d=>rows.push([fmt(d.t,3),fmt(d.pitch,3),d.midi,d.note,fmt(d.cents,2),fmt(d.rms,5)].join(',')));
+    downloadTextV7('pitch-analysis.csv', rows.join('\n'), 'text/csv;charset=utf-8');
+  }
+  function exportJsonV7(){
+    const report = window.__lastPitchReportV7 || runReportV7(); if(!report) return;
+    const compact = {createdAt:new Date().toISOString(), tuningA4:safeNum(byId('tuningA4')&&byId('tuningA4').value,440), toleranceCents:report.tolerance, range:{min:report.min,max:report.max}, avgAbsCents:report.avgAbsCents, avgCents:report.avgCents, accuracy:report.accurate, contour:report.contour, mode:report.mode, pcCounts:report.pcCounts, duration:report.duration, samples:report.clean.length};
+    downloadTextV7('pitch-analysis-report.json', JSON.stringify(compact,null,2), 'application/json;charset=utf-8');
+  }
+  function syncBackendTipV7(){
+    const v = byId('analysisBackend') ? byId('analysisBackend').value : 'frontend'; const tip = byId('backendTipV7'); if(!tip) return;
+    const map = {
+      frontend:'当前为纯前端实时分析：适合课堂即时演唱、单旋律音高线和音准反馈，不依赖服务器。',
+      essentia:'Essentia Melodia 适合“上传音频→提取主旋律线”，尤其用于民歌、采茶戏唱腔和带轻伴奏的人声主旋律。请参考 /backend/app.py。',
+      basicpitch:'Basic Pitch 适合“音频→MIDI→简谱草稿”，可用于学生作品自动转写。请参考 /backend/README.md。',
+      crepe:'CREPE / librosa pYIN 适合清唱、单件乐器的高精度离线音高分析，可用于论文前后测统计。'
+    };
+    tip.textContent = map[v] || map.frontend;
+  }
+  const runBtn=byId('runPitchReport'), csvBtn=byId('exportPitchCsv'), jsonBtn=byId('exportPitchReport'), backend=byId('analysisBackend');
+  if(runBtn) runBtn.addEventListener('click', runReportV7);
+  if(csvBtn) csvBtn.addEventListener('click', exportCsvV7);
+  if(jsonBtn) jsonBtn.addEventListener('click', exportJsonV7);
+  if(backend){ backend.addEventListener('change', syncBackendTipV7); syncBackendTipV7(); }
+  ['pitchTolerance','tuningA4','scaleAnalysisMode','keyRoot'].forEach(id=>{ const el=byId(id); if(el) el.addEventListener('change', ()=>{ if(window.__lastPitchReportV7) runReportV7(); }); });
 })();
 </script>
 
